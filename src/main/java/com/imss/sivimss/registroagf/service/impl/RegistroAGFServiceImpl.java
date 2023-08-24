@@ -82,7 +82,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	}
 
 	@Override
-	public Response<Object> guardarASF(DatosRequest request, Authentication authentication) throws IOException {
+	public Response<Object> guardarAGF(DatosRequest request, Authentication authentication) throws IOException {
 		Gson gson = new Gson();
 
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));

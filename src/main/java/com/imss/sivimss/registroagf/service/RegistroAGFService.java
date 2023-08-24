@@ -15,7 +15,7 @@ public interface RegistroAGFService {
 
 	Response<Object> listaTipoId(DatosRequest request, Authentication authentication) throws IOException;
 	
-	Response<Object> guardarASF(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> guardarAGF(DatosRequest request, Authentication authentication) throws IOException;
 	
 	Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException;
 	
