@@ -44,7 +44,8 @@ public class AyudaGastosFunerarios {
 	public DatosRequest listaTiposId() throws UnsupportedEncodingException {
 		DatosRequest request = new DatosRequest();
 		Map<String, Object> parametro = new HashMap<>();
-    	StringBuilder query = new StringBuilder("SELECT ");
+    	StringBuilder query = new StringBuilder("SELECT ID_TIPO_IDENTIFICACION AS idTipoId, DES_TIPO_IDENTIFICACION AS desTipoId \n");
+    	query.append("FROM SVC_TIPO_IDENTIFICACION ");
     	
     	String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		parametro.put(AppConstantes.QUERY, encoded);
