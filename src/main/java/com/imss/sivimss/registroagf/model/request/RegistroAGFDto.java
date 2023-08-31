@@ -17,14 +17,15 @@ public class RegistroAGFDto {
 	String cveNSS;
 	String cveCURP;
 	String fecDefuncion;
+	Integer idVelatorio;
 	Integer idRamo;
-	Integer idIdentificacion;
+	Integer idTipoId;
 	String numIdentificacion;
 	Boolean casillaCurp;
 	Boolean casillaActDef;
 	Boolean casillaCogf;
 	Boolean casillaNssi;
-	String beneficiario;
+	String cveCURPBeneficiario;
 	Integer idUsuarioAlta;
 
 }

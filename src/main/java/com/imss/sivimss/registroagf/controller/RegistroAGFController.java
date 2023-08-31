@@ -70,21 +70,10 @@ public class RegistroAGFController {
 	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
-	@PostMapping("/guarda-agf")
+	@PostMapping("/guardar")
 	public CompletableFuture<Object> guardaAGF(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
 		
-		Response<?> response = registroAGFService.detalle(request, authentication);
-		return CompletableFuture
-				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
-	}
-	
-	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
-	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
-	@TimeLimiter(name = "msflujo")
-	@PostMapping("/benefic")
-	public CompletableFuture<Object> beneficiarios(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
-		
-		Response<?> response = registroAGFService.beneficiarios(request, authentication);
+		Response<?> response = registroAGFService.guardarAGF(request, authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
@@ -96,6 +85,17 @@ public class RegistroAGFController {
 	public CompletableFuture<Object> registroNSSA(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
 		
 		Response<?> response = registroAGFService.registroNSSA(request, authentication);
+		return CompletableFuture
+				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
+	@PostMapping("/benefic")
+	public CompletableFuture<Object> beneficiarios(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
+		
+		Response<?> response = registroAGFService.beneficiarios(request, authentication);
 		return CompletableFuture
 				.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
