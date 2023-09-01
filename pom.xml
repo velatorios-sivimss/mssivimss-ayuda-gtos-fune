@@ -272,31 +272,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Configuration for create Client WSDL -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>jaxws-maven-plugin</artifactId>
-				<version>2.6</version>
-				<executions>
-					<execution>
-						<id>wsdltoJava</id>
-						<goals>
-							<goal>wsimport</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<encoding></encoding>
-					<verbose>true</verbose>
-					<sourceDestDir>src/main/java</sourceDestDir>
-					<wsdlUrls>
-						<wsdlUrl>${endpointwsdl}</wsdlUrl>
-					</wsdlUrls>
-					<vmArgs>
-						<vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
-					</vmArgs>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencyManagement>
