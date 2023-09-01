@@ -1,5 +1,5 @@
 
-package mx.gob.imss.ctirss.agf.service.certificacion;
+package com.imss.sivimss.registroagf.service.nssa;
 
 import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,15 +9,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Clase Java para AGF_Asegurado_Finado complex type.
+ * <p>Clase Java para AGF_Pensionado_Finado complex type.
  * 
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Asegurado_Finado"&gt;
+ * &lt;complexType name="AGF_Pensionado_Finado"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
+ *         &lt;element name="selBeneficiario" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *         &lt;element name="sexo" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
  *         &lt;element name="calleNumero" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *         &lt;element name="colonia" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
@@ -36,7 +38,9 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "AGF_Asegurado_Finado", propOrder = {
+@XmlType(name = "AGF_Pensionado_Finado", propOrder = {
+    "selBeneficiario",
+    "curp",
     "sexo",
     "calleNumero",
     "colonia",
@@ -47,8 +51,12 @@ import javax.xml.bind.annotation.XmlType;
     "telefono",
     "nacionalidad"
 })
-public class AGFAseguradoFinado {
+public class AGFPensionadoFinado {
 
+    @XmlElement(required = true)
+    protected String selBeneficiario;
+    @XmlElement(required = true)
+    protected String curp;
     @XmlElement(required = true)
     protected BigInteger sexo;
     @XmlElement(required = true)
@@ -66,6 +74,54 @@ public class AGFAseguradoFinado {
     @XmlElement(required = true)
     protected String telefono;
     protected boolean nacionalidad;
+
+    /**
+     * Obtiene el valor de la propiedad selBeneficiario.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getSelBeneficiario() {
+        return selBeneficiario;
+    }
+
+    /**
+     * Define el valor de la propiedad selBeneficiario.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSelBeneficiario(String value) {
+        this.selBeneficiario = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad curp.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCurp() {
+        return curp;
+    }
+
+    /**
+     * Define el valor de la propiedad curp.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCurp(String value) {
+        this.curp = value;
+    }
 
     /**
      * Obtiene el valor de la propiedad sexo.

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.imss.sivimss.registroagf.exception.BadRequestException;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -22,6 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class RestTemplateUtil {
 
 	private final RestTemplate restTemplate;
+	
+	private static final String NSSA_SIN_CONEXION = "No hay conexion con el NSSA";
+	
+	private static final String NSSA_DESACTIVADO = "El NSSA está desactivado";
 
 	public RestTemplateUtil(RestTemplate restTemplate) {
 		this.restTemplate = restTemplate;
@@ -193,4 +199,27 @@ public class RestTemplateUtil {
 
 		return responseBody;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> sendGet(String url, Class<?> clazz) throws IOException {
+		Map<String, Object> responseBody;
+
+		ResponseEntity<?> responseEntity = null;
+		
+		try {
+			responseEntity = restTemplate.getForEntity(url, clazz);
+		}catch (Exception e) {
+			
+			if(e.getMessage().contains("I/O error")) {
+				throw new BadRequestException(HttpStatus.OK, NSSA_SIN_CONEXION);
+			}else {
+				throw new BadRequestException(HttpStatus.OK, NSSA_DESACTIVADO);
+			}	
+		}
+		
+		responseBody = (Map<String, Object>) responseEntity.getBody();
+		
+		return responseBody;
+	}
+	
 }

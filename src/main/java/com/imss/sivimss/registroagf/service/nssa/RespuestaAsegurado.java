@@ -1,5 +1,5 @@
 
-package mx.gob.imss.ctirss.agf.service.certificacion;
+package com.imss.sivimss.registroagf.service.nssa;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -1,33 +1,42 @@
 package com.imss.sivimss.registroagf.service.impl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.imss.sivimss.registroagf.beans.AyudaGastosFunerarios;
 import com.imss.sivimss.registroagf.service.RegistroAGFService;
+import com.imss.sivimss.registroagf.service.nssa.NSSAConfiguration;
+import com.imss.sivimss.registroagf.service.nssa.SOAPConnectClient;
+import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
+import com.imss.sivimss.registroagf.service.nssa.AGFPensionado;
 import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.LogUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
 import com.imss.sivimss.registroagf.exception.BadRequestException;
 import com.imss.sivimss.registroagf.model.request.UsuarioDto;
-import com.imss.sivimss.registroagf.model.response.AGFAseguradoDto;
-import com.imss.sivimss.registroagf.model.response.AGFFinadoDto;
-import com.imss.sivimss.registroagf.model.response.AGFInteresadoDto;
-import com.imss.sivimss.registroagf.model.response.DocumProbatoriaDto;
+import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
+import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
 
@@ -37,12 +46,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDominio;
 	
-	//@Value("${endpoints.url-nssa}")
-	//private String urlNssa;
+	@Value("${endpoints.url-nssa}")
+	private String urlNssa;
 	
 	private static final String CONSULTA = "/consulta";
 	
 	private static final String CREAR = "/crear";
+	
+	private static Integer PENSIONADO = 3;
 	
 	@Value("${formato_fecha}")
 	private String formatoFecha;
@@ -130,60 +141,70 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
 		
 		try {
+			// Obtener datos para registro
 			Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos1 = (ArrayList) response1.getDatos();
-			AGFAseguradoDto aseguradoDto = new AGFAseguradoDto();
+			AGFAsegurado asegurado = new AGFAsegurado();
+			AGFPensionado pensionado = new AGFPensionado();
 			
-			aseguradoDto.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
-			aseguradoDto.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
-			aseguradoDto.setRamo((Integer)datos1.get(0).get("ramo")==null?5:(Integer)datos1.get(0).get("ramo"));
-			aseguradoDto.setFechaDefuncion((String)datos1.get(0).get("fechaDefuncion")==null?"":(String)datos1.get(0).get("fechaDefuncion"));
-			aseguradoDto.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
-			aseguradoDto.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?0:(Integer)datos1.get(0).get("velatorioOperador"));
-			aseguradoDto.setUsuarioOperador(usuarioDto.getIdUsuario());
-			aseguradoDto.setFinadoDto(new AGFFinadoDto());
-			aseguradoDto.getFinadoDto().setSexo((Integer)datos1.get(0).get("sexo")==null?0:(Integer)datos1.get(0).get("sexo"));
-			aseguradoDto.getFinadoDto().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
-			aseguradoDto.getFinadoDto().setColonia((String)datos1.get(0).get("colonia")==null?"":(String)datos1.get(0).get("colonia"));
-			aseguradoDto.getFinadoDto().setCp((String)datos1.get(0).get("cp")==null?"":(String)datos1.get(0).get("cp"));
-			aseguradoDto.getFinadoDto().setColonia((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
-			aseguradoDto.getFinadoDto().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
-			aseguradoDto.getFinadoDto().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
-			aseguradoDto.getFinadoDto().setTelefono((String)datos1.get(0).get("telefono")==null?"":(String)datos1.get(0).get("telefono"));
-			aseguradoDto.getFinadoDto().setNacionalidad(false);
-			aseguradoDto.setDocumentacionDto(new DocumProbatoriaDto());
-			aseguradoDto.getDocumentacionDto().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
-			aseguradoDto.getDocumentacionDto().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
-			aseguradoDto.getDocumentacionDto().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
-			aseguradoDto.getDocumentacionDto().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
-			aseguradoDto.getDocumentacionDto().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?0:(Integer)datos1.get(0).get("idOficial"));
-			aseguradoDto.getDocumentacionDto().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+			Integer intRamo = (Integer)datos1.get(0).get("ramo")==null?5:(Integer)datos1.get(0).get("ramo");
+			if (intRamo.equals(PENSIONADO)) {
+				moverDatosPensionado(pensionado, datos1);
+				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
+			} else {
+				moverDatosAsegurado(asegurado, datos1);
+				asegurado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
+			}
 			
+			// Datos del interesado
 			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos2 = (ArrayList) response2.getDatos();
-			AGFInteresadoDto interesadoDto = new AGFInteresadoDto();
+			AGFInteresado interesado = new AGFInteresado();
+			GregorianCalendar calendar = new GregorianCalendar();
+			interesado.setNombre((String)datos2.get(0).get("nombre")==null?"":(String)datos2.get(0).get("nombre"));
+			interesado.setApPaterno((String)datos2.get(0).get("apPaterno")==null?"":(String)datos2.get(0).get("apPaterno"));
+			interesado.setApMaterno((String)datos2.get(0).get("apMaterno")==null?"":(String)datos2.get(0).get("apMaterno"));
+			interesado.setCurp((String)datos2.get(0).get("curp")==null?"":(String)datos2.get(0).get("curp"));
+			interesado.setCalleNumero((String)datos2.get(0).get("calleNumero")==null?"":(String)datos2.get(0).get("calleNumero"));
+			interesado.setColonia((String)datos2.get(0).get("colonia")==null?"":(String)datos2.get(0).get("colonia"));
+			interesado.setCp((String)datos2.get(0).get("cp")==null?"":(String)datos2.get(0).get("cp"));
+			interesado.setCiudad((String)datos2.get(0).get("ciudad")==null?"":(String)datos2.get(0).get("ciudad"));
+			interesado.setEntidad((Integer)datos2.get(0).get("entidad")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("entidad").toString()));
+			interesado.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
+			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"":(String)datos2.get(0).get("telefono"));
+			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
+			calendar.setTime((Date)datos2.get(0).get("fechaSolicitud")==null?new Date():(Date)datos2.get(0).get("fechaSolicitud"));
+			interesado.setFechaSolicitud(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
 			
-			interesadoDto.setNombre((String)datos2.get(0).get("nombre")==null?"":(String)datos2.get(0).get("nombre"));
-			interesadoDto.setApPaterno((String)datos2.get(0).get("apPaterno")==null?"":(String)datos2.get(0).get("apPaterno"));
-			interesadoDto.setApMaterno((String)datos2.get(0).get("apMaterno")==null?"":(String)datos2.get(0).get("apMaterno"));
-			interesadoDto.setCurp((String)datos2.get(0).get("curp")==null?"":(String)datos2.get(0).get("curp"));
-			interesadoDto.setCalleNumero((String)datos2.get(0).get("calleNumero")==null?"":(String)datos2.get(0).get("calleNumero"));
-			interesadoDto.setColonia((String)datos2.get(0).get("colonia")==null?"":(String)datos2.get(0).get("colonia"));
-			interesadoDto.setCp((String)datos2.get(0).get("cp")==null?"":(String)datos2.get(0).get("cp"));
-			interesadoDto.setCiudad((String)datos2.get(0).get("ciudad")==null?"":(String)datos2.get(0).get("ciudad"));
-			interesadoDto.setEntidad((Integer)datos2.get(0).get("entidad")==null?0:(Integer)datos2.get(0).get("entidad"));
-			interesadoDto.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
-			interesadoDto.setTelefono((String)datos2.get(0).get("telefono")==null?"":(String)datos2.get(0).get("telefono"));
-			interesadoDto.setParentesco((Integer)datos2.get(0).get("parentesco")==null?0:(Integer)datos2.get(0).get("parentesco"));
-			interesadoDto.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?"":(String)datos2.get(0).get("fechaSolicitud"));
-
-			Response respuesta = new Response();
-			respuesta.setCodigo(200);
-			respuesta.setDatos(aseguradoDto);
-			respuesta.setError(false);
+			if (intRamo.equals(PENSIONADO)) {
+				pensionado.setDatosInteresado(interesado);
+			} else {
+			    asegurado.setDatosInteresado(interesado);
+			}
 			
-			return respuesta;
-		    //return (Response<Object>) providerRestTemplate.consumirServicio(parametro, urlDominio + CONSULTA, authentication);
+			// Armado de información para NSSA
+			NSSAConfiguration configuration = new NSSAConfiguration();
+			Jaxb2Marshaller marshaller = configuration.marshaller();
+			SOAPConnectClient client = configuration.soapconnector(marshaller);
+			
+			if (intRamo.equals(PENSIONADO)) { 
+				RespuestaPensionado salida = (RespuestaPensionado) client.callWebServices(urlNssa, pensionado);
+				AGFResponseDto respuesta = new AGFResponseDto();
+				respuesta.setNss(salida.getResolucion().getCertificacionPensionado().getNss());
+				respuesta.setRamo(salida.getResolucion().getCertificacionPensionado().getRamo());
+				respuesta.setDelegacion(salida.getResolucion().getCertificacionPensionado().getDelegacion());
+				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacionPensionado().getFechaDefuncion().toString());
+				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
+			} else {
+				RespuestaAsegurado salida =  (RespuestaAsegurado) client.callWebServices(urlNssa, asegurado);
+				AGFResponseDto respuesta = new AGFResponseDto();
+				respuesta.setNss(salida.getResolucion().getCertificacion().getNss());
+				respuesta.setRamo(salida.getResolucion().getCertificacion().getRamo());
+				respuesta.setDelegacion(salida.getResolucion().getCertificacion().getDelegacion());
+				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacion().getFechaDefuncion().toString());
+				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
+			}
+			
 		} catch (Exception e) {
 			log.error(e.getMessage());
        	    logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
@@ -198,16 +219,74 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		return null;
 	}
 	
-	/*private String consultaNssa(String servicio) throws IOException {
-		String status;
-		Map<String, Object> resp;
-		String url = urlNssa + servicio;
+	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException {
+		GregorianCalendar calendar = new GregorianCalendar();
 		
-    	//Hacemos el consumo para consultar el NSSA
-		resp = providerRestTemplate.consumirServicioGet(url);
-		status = (String) resp.get("status");
+		asegurado.setCadena("RS0");
+		asegurado.setTransaccion("1");
+		asegurado.setTipoProceso("01");
+		asegurado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
+		asegurado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
+		asegurado.setRamo((Integer)datos1.get(0).get("ramo")==null?new BigInteger("5"):new BigInteger(datos1.get(0).get("ramo").toString()));
+		calendar.setTime((Date)datos1.get(0).get("fechaDefuncion")==null?new Date():(Date)datos1.get(0).get("fechaDefuncion"));
+		asegurado.setFechaDefuncion(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+		asegurado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
+		asegurado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 		
-		return status;
-	}*/
+		asegurado.setDatosFinado(new AGFAseguradoFinado());
+		asegurado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
+		asegurado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
+		asegurado.getDatosFinado().setColonia((String)datos1.get(0).get("colonia")==null?"":(String)datos1.get(0).get("colonia"));
+		asegurado.getDatosFinado().setCp((String)datos1.get(0).get("cp")==null?"":(String)datos1.get(0).get("cp"));
+		asegurado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
+		asegurado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
+		asegurado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
+		asegurado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"":(String)datos1.get(0).get("telefono"));
+		asegurado.getDatosFinado().setNacionalidad(false);
+		
+		asegurado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
+		asegurado.getDocumentacionProbatoria().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
+		asegurado.getDocumentacionProbatoria().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
+		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
+		asegurado.getDocumentacionProbatoria().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
+		asegurado.getDocumentacionProbatoria().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("idOficial").toString()));
+		asegurado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+	}
+	
+	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException {
+		GregorianCalendar calendar = new GregorianCalendar();
+		
+		pensionado.setCadena("RS0");
+		pensionado.setTransaccion("1");
+		pensionado.setTipoProceso("01");
+		pensionado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
+		pensionado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
+		pensionado.setRamo(new BigInteger(PENSIONADO.toString()));
+		calendar.setTime((Date)datos1.get(0).get("fechaDefuncion")==null?new Date():(Date)datos1.get(0).get("fechaDefuncion"));
+		pensionado.setFechaDefuncion(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+		pensionado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
+		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
+
+		pensionado.setDatosFinado(new AGFPensionadoFinado());
+		pensionado.getDatosFinado().setSelBeneficiario(""); // Falta el beneficiario
+		pensionado.getDatosFinado().setCurp((String)datos1.get(0).get("curpFinado")==null?"":(String)datos1.get(0).get("curpFinado"));
+		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
+		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
+		pensionado.getDatosFinado().setColonia((String)datos1.get(0).get("colonia")==null?"":(String)datos1.get(0).get("colonia"));
+		pensionado.getDatosFinado().setCp((String)datos1.get(0).get("cp")==null?"":(String)datos1.get(0).get("cp"));
+		pensionado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
+		pensionado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
+		pensionado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
+		pensionado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"":(String)datos1.get(0).get("telefono"));
+		pensionado.getDatosFinado().setNacionalidad(false);
+		
+		pensionado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
+		pensionado.getDocumentacionProbatoria().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
+		pensionado.getDocumentacionProbatoria().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
+		pensionado.getDocumentacionProbatoria().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
+		pensionado.getDocumentacionProbatoria().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
+		pensionado.getDocumentacionProbatoria().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("idOficial").toString()));
+		pensionado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+	}
 	
 }
