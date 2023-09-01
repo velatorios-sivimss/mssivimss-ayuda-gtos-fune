@@ -19,7 +19,6 @@
 		<lombok.version>1.18.24</lombok.version>
 		<spring-cloud.version>2021.0.6</spring-cloud.version>
 		<mock.version>5.9.0</mock.version>
-		<endpointwsdl>http://172.16.168.92:8013/agf-web-service/AyudaGastosFunerales?WSDL</endpointwsdl>
 	</properties>
 	<dependencies>
 		<dependency>

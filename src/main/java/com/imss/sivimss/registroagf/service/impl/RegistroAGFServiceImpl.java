@@ -2,6 +2,8 @@ package com.imss.sivimss.registroagf.service.impl;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -12,6 +14,7 @@ import java.util.logging.Level;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,7 +163,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos2 = (ArrayList) response2.getDatos();
 			AGFInteresado interesado = new AGFInteresado();
-			GregorianCalendar calendar = new GregorianCalendar();
+			
 			interesado.setNombre((String)datos2.get(0).get("nombre")==null?"":(String)datos2.get(0).get("nombre"));
 			interesado.setApPaterno((String)datos2.get(0).get("apPaterno")==null?"":(String)datos2.get(0).get("apPaterno"));
 			interesado.setApMaterno((String)datos2.get(0).get("apMaterno")==null?"":(String)datos2.get(0).get("apMaterno"));
@@ -173,8 +176,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			interesado.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
 			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"":(String)datos2.get(0).get("telefono"));
 			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
-			calendar.setTime((Date)datos2.get(0).get("fechaSolicitud")==null?new Date():(Date)datos2.get(0).get("fechaSolicitud"));
-			interesado.setFechaSolicitud(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
 			
 			if (intRamo.equals(PENSIONADO)) {
 				pensionado.setDatosInteresado(interesado);
@@ -219,17 +221,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		return null;
 	}
 	
-	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException {
-		GregorianCalendar calendar = new GregorianCalendar();
-		
+	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
 		asegurado.setCadena("RS0");
 		asegurado.setTransaccion("1");
 		asegurado.setTipoProceso("01");
 		asegurado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
 		asegurado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
 		asegurado.setRamo((Integer)datos1.get(0).get("ramo")==null?new BigInteger("5"):new BigInteger(datos1.get(0).get("ramo").toString()));
-		calendar.setTime((Date)datos1.get(0).get("fechaDefuncion")==null?new Date():(Date)datos1.get(0).get("fechaDefuncion"));
-		asegurado.setFechaDefuncion(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+		asegurado.setFechaDefuncion((String)datos1.get(0).get("fechaDefuncion")==null?null:getXMLGregorianCalendar((String)datos1.get(0).get("fechaDefuncion")));
 		asegurado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
 		asegurado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 		
@@ -253,17 +252,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		asegurado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
 	}
 	
-	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException {
-		GregorianCalendar calendar = new GregorianCalendar();
-		
+	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
 		pensionado.setCadena("RS0");
 		pensionado.setTransaccion("1");
 		pensionado.setTipoProceso("01");
 		pensionado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
 		pensionado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
 		pensionado.setRamo(new BigInteger(PENSIONADO.toString()));
-		calendar.setTime((Date)datos1.get(0).get("fechaDefuncion")==null?new Date():(Date)datos1.get(0).get("fechaDefuncion"));
-		pensionado.setFechaDefuncion(DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar));
+		pensionado.setFechaDefuncion((String)datos1.get(0).get("fechaDefuncion")==null?null:getXMLGregorianCalendar((String)datos1.get(0).get("fechaDefuncion")));
 		pensionado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
 		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 
@@ -289,4 +285,18 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		pensionado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
 	}
 	
+	private static XMLGregorianCalendar getXMLGregorianCalendar(String fecha) throws ParseException, DatatypeConfigurationException {
+		 XMLGregorianCalendar xmlCalender=null;
+		 GregorianCalendar calender = new GregorianCalendar();
+		 calender.setTime(stringToJavaDate(fecha));
+		 xmlCalender = DatatypeFactory.newInstance().newXMLGregorianCalendar(calender);
+		 
+		 return xmlCalender;
+	}
+	
+	private static Date  stringToJavaDate(String sDate) throws ParseException {
+	    Date date=null;
+	    date = new SimpleDateFormat("dd/MM/yyyy").parse(sDate);        
+	    return date;  
+	}
 }
