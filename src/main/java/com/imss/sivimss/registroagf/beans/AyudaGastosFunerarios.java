@@ -82,7 +82,7 @@ public class AyudaGastosFunerarios {
 	
 	public DatosRequest datosAsegurado(DatosRequest request, Integer idFinado) throws UnsupportedEncodingException {
 		StringBuilder query = new StringBuilder("SELECT agf.CVE_NSS AS nss, agf.CVE_CURP AS curp, ID_RAMO AS ramo, \n");
-		query.append("agf.FEC_DEFUNCION AS fechaDefuncion, CONVERT(vel.ID_DELEGACION,CHAR) AS delegacion, \n");
+		query.append("DATE_FORMAT(agf.FEC_DEFUNCION,'%d/%m/%Y') AS fechaDefuncion, CONVERT(vel.ID_DELEGACION,CHAR) AS delegacion, \n");
 		query.append("agf.ID_VELATORIO AS velatorioOperador, per.NUM_SEXO AS sexo, per.CVE_CURP AS curpFinado, \n");
 		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
 		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, \n");
@@ -109,7 +109,7 @@ public class AyudaGastosFunerarios {
 		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
 		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, per.ID_ESTADO AS entidad, \n");
 		query.append("dom.DES_MUNICIPIO AS delegMunicipio, per.DES_TELEFONO AS telefono, \n");
-		query.append("cben.ID_PARENTESCO AS parentesco, os.FEC_ALTA AS fechaSolicitud \n");
+		query.append("cben.ID_PARENTESCO AS parentesco, DATE_FORMAT(os.FEC_ALTA,'%d/%m/%Y') AS fechaSolicitud \n");
 		query.append("FROM SVC_FINADO fin \n");
 		query.append("JOIN SVC_ORDEN_SERVICIO os ON os.ID_ORDEN_SERVICIO = fin.ID_ORDEN_SERVICIO \n");
 		query.append("JOIN SVC_CONTRATANTE con ON con.ID_CONTRATANTE = os.ID_CONTRATANTE \n");
