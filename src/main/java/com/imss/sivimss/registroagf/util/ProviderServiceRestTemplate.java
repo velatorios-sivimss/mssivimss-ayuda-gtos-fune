@@ -120,4 +120,14 @@ public class ProviderServiceRestTemplate {
 		 return MensajeResponseUtil.mensajeResponse(response, "");
 	}
 
+	public Map<String, Object> consumirServicioGet(String url) throws IOException {
+		try {
+			Map<String, Object> respuestaGenerado=restTemplateUtil.sendGet(url, Map.class);
+			return respuestaGenerado;
+		} catch (IOException exception) {
+			log.error("Ha ocurrido un error al recuperar la informacion");
+			throw exception;
+		}
+	}
+	
 }

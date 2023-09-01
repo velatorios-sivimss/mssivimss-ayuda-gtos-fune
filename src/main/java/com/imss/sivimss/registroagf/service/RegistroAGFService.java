@@ -17,8 +17,8 @@ public interface RegistroAGFService {
 	
 	Response<Object> guardarAGF(DatosRequest request, Authentication authentication) throws IOException;
 	
-	Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException;
-	
 	Response<Object> registroNSSA(DatosRequest request, Authentication authentication) throws IOException;
+	
+	Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException;
 	
 }

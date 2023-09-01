@@ -19,6 +19,7 @@
 		<lombok.version>1.18.24</lombok.version>
 		<spring-cloud.version>2021.0.6</spring-cloud.version>
 		<mock.version>5.9.0</mock.version>
+		<endpointwsdl>http://172.16.168.92:8013/agf-web-service/AyudaGastosFunerales?WSDL</endpointwsdl>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -190,6 +191,19 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Dependency of Spring for services REST -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web-services</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>wsdl4j</groupId>
+		    <artifactId>wsdl4j</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -258,6 +272,31 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<!-- Configuration for create Client WSDL -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxws-maven-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>wsdltoJava</id>
+						<goals>
+							<goal>wsimport</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<encoding></encoding>
+					<verbose>true</verbose>
+					<sourceDestDir>src/main/java</sourceDestDir>
+					<wsdlUrls>
+						<wsdlUrl>${endpointwsdl}</wsdlUrl>
+					</wsdlUrls>
+					<vmArgs>
+						<vmArg>-Djavax.xml.accessExternalSchema=all</vmArg>
+					</vmArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
