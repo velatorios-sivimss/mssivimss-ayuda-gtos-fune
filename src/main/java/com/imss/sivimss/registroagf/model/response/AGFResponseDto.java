@@ -16,5 +16,6 @@ public class AGFResponseDto {
 	private String ramo;
 	private String delegacion;
     private String fechaDefuncion;
+	private String respServicio;
 	
 }

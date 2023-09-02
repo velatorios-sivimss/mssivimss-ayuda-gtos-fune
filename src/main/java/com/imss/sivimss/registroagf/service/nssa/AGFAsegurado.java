@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -57,6 +58,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "datosInteresado",
     "documentacionProbatoria"
 })
+@XmlRootElement(name = "obtenerAGFAseguradoRequest", namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/")
 public class AGFAsegurado {
 
     @XmlElement(required = true)

@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -42,6 +43,7 @@ import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
 import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
+import com.imss.sivimss.registroagf.model.request.RegistroNSSADto;
 
 @Service
 public class RegistroAGFServiceImpl implements RegistroAGFService {
@@ -136,23 +138,23 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		Gson gson = new Gson();
 		
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
-		RegistroAGFDto registroAGFDto = gson.fromJson(datosJson, RegistroAGFDto.class);
+		RegistroNSSADto registroNSSADto = gson.fromJson(datosJson, RegistroNSSADto.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		if (registroAGFDto.getIdFinado() == null) {
+		if (registroNSSADto.getIdFinado() == null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
 		AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
 		
 		try {
 			// Obtener datos para registro
-			Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
+			Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroNSSADto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos1 = (ArrayList) response1.getDatos();
 			AGFAsegurado asegurado = new AGFAsegurado();
 			AGFPensionado pensionado = new AGFPensionado();
 			
 			Integer intRamo = (Integer)datos1.get(0).get("ramo")==null?5:(Integer)datos1.get(0).get("ramo");
 			if (intRamo.equals(PENSIONADO)) {
-				moverDatosPensionado(pensionado, datos1);
+				moverDatosPensionado(pensionado, datos1, registroNSSADto.getSelBeneficiario());
 				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
 			} else {
 				moverDatosAsegurado(asegurado, datos1);
@@ -160,7 +162,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			}
 			
 			// Datos del interesado
-			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
+			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroNSSADto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos2 = (ArrayList) response2.getDatos();
 			AGFInteresado interesado = new AGFInteresado();
 			
@@ -190,20 +192,22 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			SOAPConnectClient client = configuration.soapconnector(marshaller);
 			
 			if (intRamo.equals(PENSIONADO)) { 
-				RespuestaPensionado salida = (RespuestaPensionado) client.callWebServices(urlNssa, pensionado);
+				JAXBElement salida = (JAXBElement) client.callWebServices(urlNssa, pensionado);
 				AGFResponseDto respuesta = new AGFResponseDto();
-				respuesta.setNss(salida.getResolucion().getCertificacionPensionado().getNss());
-				respuesta.setRamo(salida.getResolucion().getCertificacionPensionado().getRamo());
-				respuesta.setDelegacion(salida.getResolucion().getCertificacionPensionado().getDelegacion());
-				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacionPensionado().getFechaDefuncion().toString());
+				respuesta.setNss(pensionado.getNss());
+				respuesta.setRamo(pensionado.getRamo().toString());
+				respuesta.setDelegacion(pensionado.getDelegacion());
+				respuesta.setFechaDefuncion(pensionado.getFechaDefuncion().toString());
+				respuesta.setRespServicio(salida.getName().getLocalPart());
 				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
 			} else {
-				RespuestaAsegurado salida =  (RespuestaAsegurado) client.callWebServices(urlNssa, asegurado);
+				JAXBElement salida =  (JAXBElement) client.callWebServices(urlNssa, asegurado);
 				AGFResponseDto respuesta = new AGFResponseDto();
-				respuesta.setNss(salida.getResolucion().getCertificacion().getNss());
-				respuesta.setRamo(salida.getResolucion().getCertificacion().getRamo());
-				respuesta.setDelegacion(salida.getResolucion().getCertificacion().getDelegacion());
-				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacion().getFechaDefuncion().toString());
+				respuesta.setNss(asegurado.getNss());
+				respuesta.setRamo(asegurado.getRamo().toString());
+				respuesta.setDelegacion(asegurado.getDelegacion());
+				respuesta.setFechaDefuncion(asegurado.getFechaDefuncion().toString());
+				respuesta.setRespServicio(salida.getName().getLocalPart());
 				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
 			}
 			
@@ -252,7 +256,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		asegurado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
 	}
 	
-	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
+	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1, String selBeneficiario) throws DatatypeConfigurationException, ParseException {
 		pensionado.setCadena("RS0");
 		pensionado.setTransaccion("1");
 		pensionado.setTipoProceso("01");
@@ -264,7 +268,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 
 		pensionado.setDatosFinado(new AGFPensionadoFinado());
-		pensionado.getDatosFinado().setSelBeneficiario(""); // Falta el beneficiario
+		pensionado.getDatosFinado().setSelBeneficiario(selBeneficiario);
 		pensionado.getDatosFinado().setCurp((String)datos1.get(0).get("curpFinado")==null?"":(String)datos1.get(0).get("curpFinado"));
 		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
 		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
