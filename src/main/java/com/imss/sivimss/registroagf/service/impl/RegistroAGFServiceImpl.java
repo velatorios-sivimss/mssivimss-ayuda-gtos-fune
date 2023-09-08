@@ -54,6 +54,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	@Value("${endpoints.url-nssa}")
 	private String urlNssa;
 	
+	@Value("${endpoints.url-sistrap}")
+	private String urlSistrap;
+	
 	private static final String CONSULTA = "/consulta";
 	
 	private static final String CREAR = "/crear";

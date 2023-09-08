@@ -1,0 +1,47 @@
+{
+    "error": false,
+    "codigo": 200,
+    "mensaje": "Exito",
+    "datos": [
+        {
+            "desTipoId": "NOTA CLINICA DEL SIMF",
+            "idTipoId": 1
+        },
+        {
+            "desTipoId": "CREDENCIAL DE ELECTOR",
+            "idTipoId": 2
+        },
+        {
+            "desTipoId": "CEDULA PROFESIONAL",
+            "idTipoId": 3
+        },
+        {
+            "desTipoId": "PASAPORTE",
+            "idTipoId": 4
+        },
+        {
+            "desTipoId": "CARTA PATRONAL",
+            "idTipoId": 5
+        },
+        {
+            "desTipoId": "CREDENCIAL DEL IMSS",
+            "idTipoId": 6
+        },
+        {
+            "desTipoId": "CARTILLA DE SALUD Y CITAS MÉDICAS",
+            "idTipoId": 7
+        },
+        {
+            "desTipoId": "OTRO",
+            "idTipoId": 8
+        },
+        {
+            "desTipoId": "CREDENCIAL DE PENSIONADO",
+            "idTipoId": 9
+        },
+        {
+            "desTipoId": "CREDENCIAL DE ASEGURADO",
+            "idTipoId": 10
+        }
+    ]
+}

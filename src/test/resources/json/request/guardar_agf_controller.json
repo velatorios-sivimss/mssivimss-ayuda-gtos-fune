@@ -1,0 +1,15 @@
+{
+    "idFinado" : 40,
+	"idPagoDetalle" : 60,
+	"cveNSS" : "X1X2X3X4X5",
+    "cveCURP" : "GGGG010101YUTUTY",
+    "fecDefuncion" : "01/08/2023",
+    "idVelatorio" : 1,
+    "idRamo" : 4,
+    "idTipoId" : 1,
+    "numIdentificacion" : "TRTRERTET",
+    "casillaCurp" : true,
+    "casillaActDef" : true,
+    "casillaCogf" : true,
+    "casillaNssi": false
+}

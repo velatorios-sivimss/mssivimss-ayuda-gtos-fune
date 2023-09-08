@@ -1,0 +1,19 @@
+{
+    "error": false,
+    "codigo": 200,
+    "mensaje": "Exito",
+    "datos": [
+        {
+            "desRamo": "Pensionado",
+            "idRamo": 3
+        },
+        {
+            "desRamo": "Riesgo de trabajo",
+            "idRamo": 4
+        },
+        {
+            "desRamo": "Enfermedad general",
+            "idRamo": 5
+        }
+    ]
+}

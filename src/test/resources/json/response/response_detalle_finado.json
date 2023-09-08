@@ -1,0 +1,11 @@
+{
+    "error": false,
+    "codigo": 200,
+    "mensaje": "Exito",
+    "datos": [
+        {
+            "cveCurp": "SECE910531MSPGSR00",
+            "fecDeceso": "08/01/2023"
+        }
+    ]
+}
