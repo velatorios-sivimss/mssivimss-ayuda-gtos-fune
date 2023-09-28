@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.rpc.ServiceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,11 @@ import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.LogUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
+
+import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosServiceLocator;
+import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerarios;
+import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosService;
+
 import com.imss.sivimss.registroagf.exception.BadRequestException;
 import com.imss.sivimss.registroagf.model.request.UsuarioDto;
 import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
@@ -218,6 +224,17 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	@Override
 	public Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException {
 		// TODO Auto-generated method stub
+		AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
+		String response;
+		try {
+			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
+			response = serviceClient.consultaGastosFunerarios("hola mundo");
+			log.info(response);
+		} catch (ServiceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 	
