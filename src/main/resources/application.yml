@@ -25,14 +25,14 @@ logging:
 
 
 endpoints:
-   mod-catalogos: ${msit_CATALOGOS}
-   ms-reportes: ${msit_REPORTES_GENERALES}
-   url-nssa: ${msit_URL-NSSA}
+   mod-catalogos: http://localhost:8094/mssivimss-mod-catalogos/v1/generico
+   ms-reportes: http://localhost:8088/mssivimss-reportes-jasp/v1/generales/generar-reporte
+   url-nssa: ""
 
 jwt:
-  secretkey-flujo: ${msit_SECRET_KEY}
-  secretkey-dominios: ${msit_SECRET_KEY_DOMINIO}
-  expiration-milliseconds: ${msit_SECRET_KEY_EXPIRATION}
+  secretkey-flujo: funcionamuybien
+  secretkey-dominios: funcionamuybiendominio
+  expiration-milliseconds: 36000
   
 management:
       endpoints:
@@ -42,29 +42,29 @@ management:
                     health,info,metrics
 
 resilience4j.circuitbreaker:
-    circuitBreakerAspectOrder: 1
-    instances:
-      msflujo:
-        automaticTransitionFromOpenToHalfOpenEnabled: 'true'
-        failureRateThreshold: ${msit_HILOS}
-        slidingWindowType: COUNT_BASED
-        event-consumer-buffer-size: '10'
-        registerHealthIndicator: 'true'
-        waitDurationInOpenState: ${msit_TIEMPO_DURACION}
-        permittedNumberOfCallsInHalfOpenState: ${msit_NUMERO_INTENTOS}
-        slidingWindowSize: '5'
+  circuitBreakerAspectOrder: 1
+  instances:
+    msflujo:
+      automaticTransitionFromOpenToHalfOpenEnabled: 'true'
+      failureRateThreshold: '50'
+      slidingWindowType: COUNT_BASED
+      event-consumer-buffer-size: '10'
+      registerHealthIndicator: 'true'
+      waitDurationInOpenState: 5s
+      permittedNumberOfCallsInHalfOpenState: '3'
+      slidingWindowSize: '5'
 resilience4j.retry:
-    retryAspectOrder: 2
-    instances:
-        msflujo:
-           maxAttempts: ${msit_NUMERO_INTENTOS}
-           waitDuration: ${msit_TIEMPO_DURACION}
+  retryAspectOrder: 2
+  instances:
+    msflujo:
+      maxAttempts: 3
+      waitDuration: 5s
 resilience4j.timelimiter:
-    timeLimiterAspectOrder: 3
-    instances:
-      msflujo:
-        timeout-duration: ${msit_TIEMPO_DURACION}
+  timeLimiterAspectOrder: 3
+  instances:
+    msflujo:
+      timeout-duration: 3s
         
         
-formato_fecha: ${msit_FORMATO_FECHA}
-ruta-log: ${msit_RUTA_LOG}
+formato_fecha: '%d/%m/%Y'
+ruta-log: 'C:\logs\'

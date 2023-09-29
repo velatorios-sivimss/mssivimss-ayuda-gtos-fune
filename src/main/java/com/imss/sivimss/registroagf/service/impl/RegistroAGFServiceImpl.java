@@ -7,15 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.logging.Level;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.rpc.ServiceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +33,11 @@ import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
 import com.imss.sivimss.registroagf.service.nssa.AGFPensionado;
 import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.LogUtil;
+import com.imss.sivimss.registroagf.util.MensajeResponseUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
 
 import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosServiceLocator;
-import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerarios;
 import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosService;
 
 import com.imss.sivimss.registroagf.exception.BadRequestException;
@@ -47,22 +45,28 @@ import com.imss.sivimss.registroagf.model.request.UsuarioDto;
 import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
 import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
+import com.imss.sivimss.registroagf.model.request.BeneficiariosRequest;
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
 
 @Service
 public class RegistroAGFServiceImpl implements RegistroAGFService {
-	
+
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDominio;
 	
 	@Value("${endpoints.url-nssa}")
 	private String urlNssa;
 	
+	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
+	private static final String AGREGADO_CORRECTAMENTE = "30"; // El ataúd ya fue registrado como donado exitosamente.
+	
 	private static final String CONSULTA = "/consulta";
 	
 	private static final String CREAR = "/crear";
 	
 	private static Integer PENSIONADO = 3;
+	
+	private static final String EXITO = "Exito";
 	
 	@Value("${formato_fecha}")
 	private String formatoFecha;
@@ -74,6 +78,8 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	private ProviderServiceRestTemplate providerRestTemplate;
 	
 	private static final Logger log = LoggerFactory.getLogger(RegistroAGFServiceImpl.class);
+	
+	private Response<Object>response;
 
 	@Override
 	public Response<Object> detalle(DatosRequest request, Authentication authentication) throws IOException {
@@ -128,7 +134,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		registroAGFDto.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		
 		try { 
-			 return (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication);
+			 return   MensajeResponseUtil.mensajeResponseObjecto((Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication), AGREGADO_CORRECTAMENTE);
 		} catch (Exception e) {
 			log.error(e.getMessage());
         	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
@@ -202,7 +208,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 				respuesta.setRamo(salida.getResolucion().getCertificacionPensionado().getRamo());
 				respuesta.setDelegacion(salida.getResolucion().getCertificacionPensionado().getDelegacion());
 				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacionPensionado().getFechaDefuncion().toString());
-				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
+				return new Response<Object>(false, HttpStatus.OK.value(), EXITO, respuesta);
 			} else {
 				RespuestaAsegurado salida =  (RespuestaAsegurado) client.callWebServices(urlNssa, asegurado);
 				AGFResponseDto respuesta = new AGFResponseDto();
@@ -210,7 +216,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 				respuesta.setRamo(salida.getResolucion().getCertificacion().getRamo());
 				respuesta.setDelegacion(salida.getResolucion().getCertificacion().getDelegacion());
 				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacion().getFechaDefuncion().toString());
-				return new Response<Object>(false, HttpStatus.OK.value(), "Exito", respuesta);
+				return new Response<Object>(false, HttpStatus.OK.value(), EXITO, respuesta);
 			}
 			
 		} catch (Exception e) {
@@ -223,19 +229,18 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 
 	@Override
 	public Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException {
-		// TODO Auto-generated method stub
 		AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
-		String response;
+		String responseString = null;
 		try {
-			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
-			response = serviceClient.consultaGastosFunerarios("hola mundo");
-			log.info(response);
-		} catch (ServiceException e) {
-			// TODO Auto-generated catch block
+			RegistroAGFDto registroAGFDto = new Gson().fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), RegistroAGFDto.class);
+//			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
+//			responseString = serviceClient.consultaGastosFunerarios("hola mundo");
+			 return   MensajeResponseUtil.mensajeResponseObjecto(obtenerBeneficiarios(registroAGFDto), EXITO);
+		} catch (Exception e) {
 			e.printStackTrace();
+			logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(), "Fallo al ejecutar el reporte : "  + e.getMessage(), "consulta",authentication);
+			throw new IOException(ERROR_INFORMACION, e.getCause());
 		}
-		
-		return null;
 	}
 	
 	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
@@ -281,7 +286,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 
 		pensionado.setDatosFinado(new AGFPensionadoFinado());
-		pensionado.getDatosFinado().setSelBeneficiario(""); // Falta el beneficiario
+		pensionado.getDatosFinado().setSelBeneficiario((String)datos1.get(0).get("nomBeneficiario")==null?"":(String)datos1.get(0).get("nomBeneficiario")); // Falta el beneficiario
 		pensionado.getDatosFinado().setCurp((String)datos1.get(0).get("curpFinado")==null?"":(String)datos1.get(0).get("curpFinado"));
 		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
 		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
@@ -315,5 +320,27 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	    Date date=null;
 	    date = new SimpleDateFormat("dd/MM/yyyy").parse(sDate);        
 	    return date;  
+	}
+	
+	private  Response<Object> obtenerBeneficiarios(RegistroAGFDto registroAGFDto ) {
+		List<BeneficiariosRequest> beneficiariosRequest = new ArrayList<>();
+		if ("46127209461".equals(registroAGFDto.getCveNSS())) {
+			beneficiariosRequest.add(new BeneficiariosRequest("DANIEL TINAJERO TRISTAN","TITD600101HTSNRN09") );
+			beneficiariosRequest.add(new BeneficiariosRequest("MA. GUADALUPE MORENO CASTILLO", "ROBG900321MTSDRD01") );
+			beneficiariosRequest.add(new BeneficiariosRequest("SEBASTIAN GOMEZ RAMIREZ", "MOCG481211MTSRSD25") );
+			
+			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
+			
+		} else if ("46127209464".equals(registroAGFDto.getCveNSS())) {
+			beneficiariosRequest.add(new BeneficiariosRequest("LILIA ISABEL PEREZ RODRIGUEZ", "AACM651123MTSLLR06") );
+			beneficiariosRequest.add(new BeneficiariosRequest("ZULEIMA GABRIELA ORDOÑEZ ALANIS", "PAVM910427HTLRZR04") );
+			
+			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
+			
+		} else {
+			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
+		}
+		
+		return response;
 	}
 }

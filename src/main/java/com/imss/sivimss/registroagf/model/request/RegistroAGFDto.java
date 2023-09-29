@@ -26,6 +26,7 @@ public class RegistroAGFDto {
 	Boolean casillaCogf;
 	Boolean casillaNssi;
 	String cveCURPBeneficiario;
+	String nombreBeneficiario;
 	Integer idUsuarioAlta;
 
 }
