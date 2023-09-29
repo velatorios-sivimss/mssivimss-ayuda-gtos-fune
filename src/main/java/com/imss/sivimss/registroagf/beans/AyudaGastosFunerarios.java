@@ -70,6 +70,9 @@ public class AyudaGastosFunerarios {
 		q.agregarParametroValues("IND_CASILLA_ACT_DEF", registroAGFDto.getCasillaActDef() + "");
 		q.agregarParametroValues("IND_CASILLA_COGF", registroAGFDto.getCasillaCogf() + "");
 		q.agregarParametroValues("IND_CASILLA_NSSI", registroAGFDto.getCasillaNssi() + "");
+		q.agregarParametroValues("IND_CASILLA_NSSI", registroAGFDto.getCasillaNssi() + "");
+		q.agregarParametroValues("CVE_CURP_BENEFICIARIO", "'" + registroAGFDto.getCveCURPBeneficiario() + "'");
+		q.agregarParametroValues("NOM_BENEFICIARIO", "'" + registroAGFDto.getNombreBeneficiario() + "'");
 		q.agregarParametroValues("ID_USUARIO_ALTA", registroAGFDto.getIdUsuarioAlta() + "");
 		
 		String query = q.obtenerQueryInsertar();
@@ -89,7 +92,8 @@ public class AyudaGastosFunerarios {
 		query.append("dom.DES_ESTADO AS entidad, dom.DES_MUNICIPIO AS delegMunicipio, per.DES_TELEFONO AS telefono, \n");
 		query.append("agf.IND_CASILLA_CURP AS chkCurp, agf.IND_CASILLA_ACT_DEF AS chkActaDefuncion, \n");
 		query.append("agf.IND_CASILLA_COGF AS chkCuentaOriginalGF, agf.IND_CASILLA_NSSI AS chkNSSI, \n");
-		query.append("agf.ID_TIPO_IDENTIFICACION AS idOficial, agf.NUM_IDENTIFICACION AS numIdOficial \n");
+		query.append("agf.ID_TIPO_IDENTIFICACION AS idOficial, agf.NUM_IDENTIFICACION AS numIdOficial, \n");
+		query.append("agf.CVE_CURP_BENEFICIARIO AS curpBeneficiario, agf.NOM_BENEFICIARIO AS nomBeneficiario \n");
 		query.append("FROM SVT_AYUDA_GASTOS_FUNERAL agf \n");
 		query.append("JOIN SVC_VELATORIO vel ON vel.ID_VELATORIO = agf.ID_VELATORIO \n");
 		query.append("JOIN SVC_FINADO fin ON fin.ID_FINADO = agf.ID_FINADO \n");
