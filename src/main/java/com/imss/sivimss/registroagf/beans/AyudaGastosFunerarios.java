@@ -20,7 +20,7 @@ public class AyudaGastosFunerarios {
 	
 	public DatosRequest detalle(DatosRequest request, String formatoFecha) throws UnsupportedEncodingException {
 		String idFinado = request.getDatos().get("id").toString();
-		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, per.CVE_CURP AS cveCurp,  DATE_FORMAT(fin.FEC_DECESO,'%d/%m/%Y') AS fecDeceso \n");
+		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, per.CVE_CURP AS cveCurp,  DATE_FORMAT(fin.FEC_DECESO,'%d/%m/%Y') AS fecDeceso, fin.ID_VELATORIO AS idVelatorio \n");
 		query.append("FROM SVC_FINADO fin JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \n");
 		query.append("WHERE ID_FINADO = " + idFinado);
 	
