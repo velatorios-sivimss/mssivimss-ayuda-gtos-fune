@@ -16,28 +16,28 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Interesado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="nombre" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="apPaterno" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="apMaterno" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="calleNumero" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="colonia" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="cp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="ciudad" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="entidad" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="delegMunicipio" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="lada" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="telefono" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="parentesco" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="fechaSolicitud" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Interesado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="nombre" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="apPaterno" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="apMaterno" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="calleNumero" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="colonia" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="cp" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="ciudad" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="entidad" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="delegMunicipio" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="lada" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="telefono" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="parentesco" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="fechaSolicitud" type="{http://www.w3.org/2001/XMLSchema}date"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

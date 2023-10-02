@@ -101,6 +101,8 @@ public class AyudaGastosFunerarios {
 		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = fin.ID_DOMICILIO \n");
 		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
 		query.append("WHERE agf.ID_FINADO = " + idFinado);
+		query.append(" GROUP BY fin.ID_FINADO");
+		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
@@ -122,6 +124,8 @@ public class AyudaGastosFunerarios {
 		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = con.ID_DOMICILIO \n");
 		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
 		query.append("WHERE fin.ID_FINADO = " + idFinado);
+		query.append(" GROUP BY fin.ID_FINADO");
+		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);

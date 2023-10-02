@@ -14,23 +14,23 @@ import javax.xml.bind.annotation.XmlType;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Asegurado_Finado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="sexo" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="calleNumero" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="colonia" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="cp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="ciudad" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="entidad" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="delegMunicipio" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="telefono" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="nacionalidad" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Asegurado_Finado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="sexo" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="calleNumero" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="colonia" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="cp" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="ciudad" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="entidad" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="delegMunicipio" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="telefono" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="nacionalidad" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

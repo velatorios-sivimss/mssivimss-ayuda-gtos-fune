@@ -14,20 +14,20 @@ import javax.xml.bind.annotation.XmlType;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Respuesta_Asegurado_Velatorio"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="nombreVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="numeroVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="responsableVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="banco" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="cuentaClabe" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="estatusClabe" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Respuesta_Asegurado_Velatorio">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="nombreVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="numeroVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="responsableVelatorio" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="banco" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="cuentaClabe" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="estatusClabe" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

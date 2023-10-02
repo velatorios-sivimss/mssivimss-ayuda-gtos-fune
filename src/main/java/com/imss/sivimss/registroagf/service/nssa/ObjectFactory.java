@@ -24,10 +24,10 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _ObtenerAGFAseguradoRequest_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFAseguradoRequest");
     private final static QName _ObtenerAGFAseguradoResponse_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFAseguradoResponse");
-    private final static QName _ObtenerAGFPensionadoRequest_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFPensionadoRequest");
     private final static QName _ObtenerAGFPensionadoResponse_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFPensionadoResponse");
+    private final static QName _ObtenerAGFPensionadoRequest_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFPensionadoRequest");
+    private final static QName _ObtenerAGFAseguradoRequest_QNAME = new QName("http://certificacion.service.agf.ctirss.imss.gob.mx/", "obtenerAGFAseguradoRequest");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: mx.gob.imss.ctirss.agf.service.certificacion
@@ -45,19 +45,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link RespuestaAsegurado }
-     * 
-     */
-    public RespuestaAsegurado createRespuestaAsegurado() {
-        return new RespuestaAsegurado();
-    }
-
-    /**
      * Create an instance of {@link AGFPensionado }
      * 
      */
     public AGFPensionado createAGFPensionado() {
         return new AGFPensionado();
+    }
+
+    /**
+     * Create an instance of {@link RespuestaAsegurado }
+     * 
+     */
+    public RespuestaAsegurado createRespuestaAsegurado() {
+        return new RespuestaAsegurado();
     }
 
     /**
@@ -69,43 +69,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link AGFAseguradoFinado }
+     * Create an instance of {@link AGFRespuestaAseguradoVelatorio }
      * 
      */
-    public AGFAseguradoFinado createAGFAseguradoFinado() {
-        return new AGFAseguradoFinado();
+    public AGFRespuestaAseguradoVelatorio createAGFRespuestaAseguradoVelatorio() {
+        return new AGFRespuestaAseguradoVelatorio();
     }
 
     /**
-     * Create an instance of {@link AGFInteresado }
+     * Create an instance of {@link AGFRespuestaPensionadoBeneficiarios }
      * 
      */
-    public AGFInteresado createAGFInteresado() {
-        return new AGFInteresado();
-    }
-
-    /**
-     * Create an instance of {@link AGFDocumentacionProbatoria }
-     * 
-     */
-    public AGFDocumentacionProbatoria createAGFDocumentacionProbatoria() {
-        return new AGFDocumentacionProbatoria();
-    }
-
-    /**
-     * Create an instance of {@link ResolucionAGFAsegurado }
-     * 
-     */
-    public ResolucionAGFAsegurado createResolucionAGFAsegurado() {
-        return new ResolucionAGFAsegurado();
-    }
-
-    /**
-     * Create an instance of {@link CertificacionAGFAsegurado }
-     * 
-     */
-    public CertificacionAGFAsegurado createCertificacionAGFAsegurado() {
-        return new CertificacionAGFAsegurado();
+    public AGFRespuestaPensionadoBeneficiarios createAGFRespuestaPensionadoBeneficiarios() {
+        return new AGFRespuestaPensionadoBeneficiarios();
     }
 
     /**
@@ -117,11 +93,35 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link AGFRespuestaAseguradoVelatorio }
+     * Create an instance of {@link CertificacionAGFPensionado }
      * 
      */
-    public AGFRespuestaAseguradoVelatorio createAGFRespuestaAseguradoVelatorio() {
-        return new AGFRespuestaAseguradoVelatorio();
+    public CertificacionAGFPensionado createCertificacionAGFPensionado() {
+        return new CertificacionAGFPensionado();
+    }
+
+    /**
+     * Create an instance of {@link CertificacionAGFAsegurado }
+     * 
+     */
+    public CertificacionAGFAsegurado createCertificacionAGFAsegurado() {
+        return new CertificacionAGFAsegurado();
+    }
+
+    /**
+     * Create an instance of {@link AGFDocumentacionProbatoria }
+     * 
+     */
+    public AGFDocumentacionProbatoria createAGFDocumentacionProbatoria() {
+        return new AGFDocumentacionProbatoria();
+    }
+
+    /**
+     * Create an instance of {@link AGFAseguradoFinado }
+     * 
+     */
+    public AGFAseguradoFinado createAGFAseguradoFinado() {
+        return new AGFAseguradoFinado();
     }
 
     /**
@@ -141,41 +141,24 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link CertificacionAGFPensionado }
+     * Create an instance of {@link ResolucionAGFAsegurado }
      * 
      */
-    public CertificacionAGFPensionado createCertificacionAGFPensionado() {
-        return new CertificacionAGFPensionado();
+    public ResolucionAGFAsegurado createResolucionAGFAsegurado() {
+        return new ResolucionAGFAsegurado();
     }
 
     /**
-     * Create an instance of {@link AGFRespuestaPensionadoBeneficiarios }
+     * Create an instance of {@link AGFInteresado }
      * 
      */
-    public AGFRespuestaPensionadoBeneficiarios createAGFRespuestaPensionadoBeneficiarios() {
-        return new AGFRespuestaPensionadoBeneficiarios();
+    public AGFInteresado createAGFInteresado() {
+        return new AGFInteresado();
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AGFAsegurado }{@code >}
+     * Create an instance of {@link JAXBElement }{@code <}{@link RespuestaAsegurado }{@code >}}
      * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AGFAsegurado }{@code >}
-     */
-    @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFAseguradoRequest")
-    public JAXBElement<AGFAsegurado> createObtenerAGFAseguradoRequest(AGFAsegurado value) {
-        return new JAXBElement<AGFAsegurado>(_ObtenerAGFAseguradoRequest_QNAME, AGFAsegurado.class, null, value);
-    }
-
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link RespuestaAsegurado }{@code >}
-     * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link RespuestaAsegurado }{@code >}
      */
     @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFAseguradoResponse")
     public JAXBElement<RespuestaAsegurado> createObtenerAGFAseguradoResponse(RespuestaAsegurado value) {
@@ -183,12 +166,17 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AGFPensionado }{@code >}
+     * Create an instance of {@link JAXBElement }{@code <}{@link RespuestaPensionado }{@code >}}
      * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link AGFPensionado }{@code >}
+     */
+    @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFPensionadoResponse")
+    public JAXBElement<RespuestaPensionado> createObtenerAGFPensionadoResponse(RespuestaPensionado value) {
+        return new JAXBElement<RespuestaPensionado>(_ObtenerAGFPensionadoResponse_QNAME, RespuestaPensionado.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AGFPensionado }{@code >}}
+     * 
      */
     @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFPensionadoRequest")
     public JAXBElement<AGFPensionado> createObtenerAGFPensionadoRequest(AGFPensionado value) {
@@ -196,16 +184,12 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link RespuestaPensionado }{@code >}
+     * Create an instance of {@link JAXBElement }{@code <}{@link AGFAsegurado }{@code >}}
      * 
-     * @param value
-     *     Java instance representing xml element's value.
-     * @return
-     *     the new instance of {@link JAXBElement }{@code <}{@link RespuestaPensionado }{@code >}
      */
-    @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFPensionadoResponse")
-    public JAXBElement<RespuestaPensionado> createObtenerAGFPensionadoResponse(RespuestaPensionado value) {
-        return new JAXBElement<RespuestaPensionado>(_ObtenerAGFPensionadoResponse_QNAME, RespuestaPensionado.class, null, value);
+    @XmlElementDecl(namespace = "http://certificacion.service.agf.ctirss.imss.gob.mx/", name = "obtenerAGFAseguradoRequest")
+    public JAXBElement<AGFAsegurado> createObtenerAGFAseguradoRequest(AGFAsegurado value) {
+        return new JAXBElement<AGFAsegurado>(_ObtenerAGFAseguradoRequest_QNAME, AGFAsegurado.class, null, value);
     }
 
 }

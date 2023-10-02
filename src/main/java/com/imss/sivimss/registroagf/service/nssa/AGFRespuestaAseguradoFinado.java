@@ -14,26 +14,26 @@ import javax.xml.bind.annotation.XmlType;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Respuesta_Asegurado_Finado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="nombre" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="apPaterno" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="apMaterno" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="sexo" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="valorReferencia" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="capitalConstitutivo" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="tipoDerecho" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="montoAyuda" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="estatusPago" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="indResolucion" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="folioAGF" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Respuesta_Asegurado_Finado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="nombre" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="apPaterno" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="apMaterno" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="sexo" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="valorReferencia" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="capitalConstitutivo" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="tipoDerecho" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="montoAyuda" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="estatusPago" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="indResolucion" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="folioAGF" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 
