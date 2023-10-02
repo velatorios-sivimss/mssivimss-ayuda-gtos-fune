@@ -16,27 +16,27 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Asegurado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="cadena" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="transaccion" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="tipoProceso" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="nss" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="ramo" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="fechaDefuncion" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
- *         &lt;element name="delegacion" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="velatorioOperador" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="usuarioOperador" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="datosFinado" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Asegurado_Finado"/&gt;
- *         &lt;element name="datosInteresado" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Interesado"/&gt;
- *         &lt;element name="documentacionProbatoria" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Documentacion_Probatoria"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Asegurado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="cadena" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="transaccion" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="tipoProceso" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="nss" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="ramo" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="fechaDefuncion" type="{http://www.w3.org/2001/XMLSchema}date"/>
+ *         &lt;element name="delegacion" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="velatorioOperador" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="usuarioOperador" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="datosFinado" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Asegurado_Finado"/>
+ *         &lt;element name="datosInteresado" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Interesado"/>
+ *         &lt;element name="documentacionProbatoria" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Documentacion_Probatoria"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

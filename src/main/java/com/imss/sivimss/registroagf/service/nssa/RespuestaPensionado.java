@@ -13,18 +13,18 @@ import javax.xml.bind.annotation.XmlType;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="RespuestaPensionado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="exito" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="claveError" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="descripcionError" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="resolucion" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}ResolucionAGF_Pensionado"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="RespuestaPensionado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="exito" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="claveError" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="descripcionError" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="resolucion" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}ResolucionAGF_Pensionado"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

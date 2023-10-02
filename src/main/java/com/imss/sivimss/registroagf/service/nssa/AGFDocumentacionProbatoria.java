@@ -14,20 +14,20 @@ import javax.xml.bind.annotation.XmlType;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="AGF_Documentacion_Probatoria"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *         &lt;element name="actaDefuncion" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *         &lt;element name="cuentaOriginalGF" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *         &lt;element name="documentoConNSS" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *         &lt;element name="idOficial" type="{http://www.w3.org/2001/XMLSchema}integer"/&gt;
- *         &lt;element name="numIdOficial" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="AGF_Documentacion_Probatoria">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="curp" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="actaDefuncion" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="cuentaOriginalGF" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="documentoConNSS" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="idOficial" type="{http://www.w3.org/2001/XMLSchema}integer"/>
+ *         &lt;element name="numIdOficial" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

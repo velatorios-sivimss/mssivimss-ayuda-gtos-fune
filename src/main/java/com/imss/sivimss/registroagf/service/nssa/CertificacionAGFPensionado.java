@@ -15,23 +15,23 @@ import javax.xml.datatype.XMLGregorianCalendar;
  * <p>El siguiente fragmento de esquema especifica el contenido que se espera que haya en esta clase.
  * 
  * <pre>
- * &lt;complexType name="CertificacionAGF_Pensionado"&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="cadena" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="transaccion" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="tipoProceso" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="delegacion" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="nss" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="ramo" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
- *         &lt;element name="fechaDefuncion" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
- *         &lt;element name="fechaSolicitud" type="{http://www.w3.org/2001/XMLSchema}date"/&gt;
- *         &lt;element name="datosBeneficiarios" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Respuesta_Pensionado_Beneficiarios"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
+ * &lt;complexType name="CertificacionAGF_Pensionado">
+ *   &lt;complexContent>
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;sequence>
+ *         &lt;element name="cadena" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="transaccion" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="tipoProceso" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="delegacion" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="nss" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="ramo" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="fechaDefuncion" type="{http://www.w3.org/2001/XMLSchema}date"/>
+ *         &lt;element name="fechaSolicitud" type="{http://www.w3.org/2001/XMLSchema}date"/>
+ *         &lt;element name="datosBeneficiarios" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Respuesta_Pensionado_Beneficiarios"/>
+ *       &lt;/sequence>
+ *     &lt;/restriction>
+ *   &lt;/complexContent>
+ * &lt;/complexType>
  * </pre>
  * 
  * 

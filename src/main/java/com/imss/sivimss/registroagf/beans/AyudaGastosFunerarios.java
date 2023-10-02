@@ -20,7 +20,7 @@ public class AyudaGastosFunerarios {
 	
 	public DatosRequest detalle(DatosRequest request, String formatoFecha) throws UnsupportedEncodingException {
 		String idFinado = request.getDatos().get("id").toString();
-		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, per.CVE_CURP AS cveCurp,  DATE_FORMAT(fin.FEC_DECESO,'%d/%m/%Y') AS fecDeceso \n");
+		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, per.CVE_CURP AS cveCurp,  DATE_FORMAT(fin.FEC_DECESO,'%d/%m/%Y') AS fecDeceso, fin.ID_VELATORIO AS idVelatorio \n");
 		query.append("FROM SVC_FINADO fin JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \n");
 		query.append("WHERE ID_FINADO = " + idFinado);
 	
@@ -101,6 +101,8 @@ public class AyudaGastosFunerarios {
 		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = fin.ID_DOMICILIO \n");
 		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
 		query.append("WHERE agf.ID_FINADO = " + idFinado);
+		query.append(" GROUP BY fin.ID_FINADO");
+		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
@@ -122,6 +124,8 @@ public class AyudaGastosFunerarios {
 		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = con.ID_DOMICILIO \n");
 		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
 		query.append("WHERE fin.ID_FINADO = " + idFinado);
+		query.append(" GROUP BY fin.ID_FINADO");
+		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);

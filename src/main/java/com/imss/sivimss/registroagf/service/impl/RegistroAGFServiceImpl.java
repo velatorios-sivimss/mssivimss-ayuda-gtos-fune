@@ -20,15 +20,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.imss.sivimss.registroagf.beans.AyudaGastosFunerarios;
 import com.imss.sivimss.registroagf.service.RegistroAGFService;
-import com.imss.sivimss.registroagf.service.nssa.NSSAConfiguration;
-import com.imss.sivimss.registroagf.service.nssa.SOAPConnectClient;
 import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
 import com.imss.sivimss.registroagf.service.nssa.AGFPensionado;
 import com.imss.sivimss.registroagf.util.DatosRequest;
@@ -49,13 +46,10 @@ import com.imss.sivimss.registroagf.model.request.BeneficiariosRequest;
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
 
 @Service
-public class RegistroAGFServiceImpl implements RegistroAGFService {
+public class RegistroAGFServiceImpl implements RegistroAGFService   {
 
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDominio;
-	
-	@Value("${endpoints.url-nssa}")
-	private String urlNssa;
 	
 	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
 	private static final String AGREGADO_CORRECTAMENTE = "30"; // El ataúd ya fue registrado como donado exitosamente.
@@ -80,6 +74,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 	private static final Logger log = LoggerFactory.getLogger(RegistroAGFServiceImpl.class);
 	
 	private Response<Object>response;
+	
+	@Autowired
+	private SoapClientService soapClientService;
 
 	@Override
 	public Response<Object> detalle(DatosRequest request, Authentication authentication) throws IOException {
@@ -163,7 +160,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			AGFPensionado pensionado = new AGFPensionado();
 			
 			Integer intRamo = (Integer)datos1.get(0).get("ramo")==null?5:(Integer)datos1.get(0).get("ramo");
-			if (intRamo.equals(PENSIONADO)) {
+			if (intRamo == PENSIONADO) {
 				moverDatosPensionado(pensionado, datos1);
 				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
 			} else {
@@ -190,19 +187,17 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
 			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
 			
-			if (intRamo.equals(PENSIONADO)) {
+			if (intRamo == PENSIONADO) {
 				pensionado.setDatosInteresado(interesado);
 			} else {
 			    asegurado.setDatosInteresado(interesado);
 			}
 			
 			// Armado de información para NSSA
-			NSSAConfiguration configuration = new NSSAConfiguration();
-			Jaxb2Marshaller marshaller = configuration.marshaller();
-			SOAPConnectClient client = configuration.soapconnector(marshaller);
+
 			
-			if (intRamo.equals(PENSIONADO)) { 
-				RespuestaPensionado salida = (RespuestaPensionado) client.callWebServices(urlNssa, pensionado);
+			if (intRamo == PENSIONADO) { 
+				RespuestaPensionado salida = soapClientService.obtenerRespuestaPensionado(pensionado);
 				AGFResponseDto respuesta = new AGFResponseDto();
 				respuesta.setNss(salida.getResolucion().getCertificacionPensionado().getNss());
 				respuesta.setRamo(salida.getResolucion().getCertificacionPensionado().getRamo());
@@ -210,7 +205,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 				respuesta.setFechaDefuncion(salida.getResolucion().getCertificacionPensionado().getFechaDefuncion().toString());
 				return new Response<Object>(false, HttpStatus.OK.value(), EXITO, respuesta);
 			} else {
-				RespuestaAsegurado salida =  (RespuestaAsegurado) client.callWebServices(urlNssa, asegurado);
+				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
 				AGFResponseDto respuesta = new AGFResponseDto();
 				respuesta.setNss(salida.getResolucion().getCertificacion().getNss());
 				respuesta.setRamo(salida.getResolucion().getCertificacion().getRamo());
@@ -220,6 +215,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService {
 			}
 			
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error(e.getMessage());
        	    logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
 			return null;
