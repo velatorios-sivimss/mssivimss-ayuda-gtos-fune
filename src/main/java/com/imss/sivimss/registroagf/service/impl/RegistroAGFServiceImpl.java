@@ -333,7 +333,20 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			
 			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
 			
-		} else {
+		} else if ("64866806660".equals(registroAGFDto.getCveNSS())) {
+			beneficiariosRequest.add(new BeneficiariosRequest("JIMENA VALENCIA ELIAS", "GORS990626HMCMMB09") );
+			beneficiariosRequest.add(new BeneficiariosRequest("JUAN DIEGO VALENCIA GARCIA", "VAGJ110218HQTLRNA1") );
+			
+			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
+			
+		}  else if ("24715415865".equals(registroAGFDto.getCveNSS())) {
+			beneficiariosRequest.add(new BeneficiariosRequest("VIRGINIA NIEVES IBARRA", "NIIV940411MQTVBR08") );
+			beneficiariosRequest.add(new BeneficiariosRequest("ADRIANA IBARRA MARTINEZ", "LOMA900209MQTPRD00"));
+			beneficiariosRequest.add(new BeneficiariosRequest("JOSE IBARRA AGUILAR", "CLARK5HVZNYD06"));
+			
+			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
+			
+		}  else {
 			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
 		}
 		
