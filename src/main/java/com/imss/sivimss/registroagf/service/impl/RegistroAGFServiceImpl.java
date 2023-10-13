@@ -1,6 +1,7 @@
 package com.imss.sivimss.registroagf.service.impl;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -11,6 +12,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.logging.Level;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -35,11 +39,14 @@ import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
 
 import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosServiceLocator;
+import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerarios;
 import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosService;
 
 import com.imss.sivimss.registroagf.exception.BadRequestException;
 import com.imss.sivimss.registroagf.model.request.UsuarioDto;
 import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
+import com.imss.sivimss.registroagf.model.response.AgfSalida;
+import com.imss.sivimss.registroagf.model.response.BeneficiariosResponse;
 import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.model.request.BeneficiariosRequest;
@@ -225,18 +232,56 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 
 	@Override
 	public Response<Object> beneficiarios(DatosRequest request, Authentication authentication) throws IOException {
-		AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
+		
 		String responseString = null;
+		Gson gson = new Gson();
+		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
+		BeneficiariosRequest beneficiarios = gson.fromJson(datosJson, BeneficiariosRequest.class);
+		StringBuilder xml = new StringBuilder("<agfConsulta xmlns=\"http://www.imss.gob.mx/gastosFunerarios/entidades\"> \r\n"
+				+ "<id-nss>");
+		xml.append( beneficiarios.getCveNSS() );
+		xml.append( "</id-nss>\r\n"
+				+ "<fecha-defuncion>" );
+		xml.append( beneficiarios.getFechaDefuncion() );
+		xml.append( "</fecha-defuncion></agfConsulta>" );
+		
 		try {
-			RegistroAGFDto registroAGFDto = new Gson().fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), RegistroAGFDto.class);
-//			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
-//			responseString = serviceClient.consultaGastosFunerarios("hola mundo");
-			 return   MensajeResponseUtil.mensajeResponseObjecto(obtenerBeneficiarios(registroAGFDto), EXITO);
+			
+			AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
+			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
+			responseString = serviceClient.consultaGastosFunerarios(xml.toString());
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(),this.getClass().getPackage().toString(), "Fallo al ejecutar el reporte : "  + e.getMessage(), "consulta",authentication);
 			throw new IOException(ERROR_INFORMACION, e.getCause());
 		}
+		
+		AgfSalida agfSalida = null;
+		
+		if( responseString != null && !responseString.isEmpty() ) {
+		
+			responseString = responseString.replace("xmlns=\"http://www.imss.gob.mx/gastosFunerarios/entidades\"", "");
+			
+			try {
+				
+				JAXBContext context = JAXBContext.newInstance( AgfSalida.class );
+				Unmarshaller unmarshaller = context.createUnmarshaller();
+				StringReader reader = new StringReader(responseString);
+				agfSalida = (AgfSalida) unmarshaller.unmarshal( reader );
+				response= new Response<>(false, 200, EXITO, agfSalida.getComponenteType());
+				
+			} catch (JAXBException e) {
+				log.info(e.getMessage());
+				throw new IOException("Error al generar la factura");
+			}
+		}else {
+			response= new Response<>(false, 500, ERROR_INFORMACION, null);
+			
+		}
+		
+		return response;
+		
 	}
 	
 	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
@@ -319,30 +364,30 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	}
 	
 	private  Response<Object> obtenerBeneficiarios(RegistroAGFDto registroAGFDto ) {
-		List<BeneficiariosRequest> beneficiariosRequest = new ArrayList<>();
+		List<BeneficiariosResponse> beneficiariosRequest = new ArrayList<>();
 		if ("46127209461".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosRequest("DANIEL TINAJERO TRISTAN","TITD600101HTSNRN09") );
-			beneficiariosRequest.add(new BeneficiariosRequest("MA. GUADALUPE MORENO CASTILLO", "ROBG900321MTSDRD01") );
-			beneficiariosRequest.add(new BeneficiariosRequest("SEBASTIAN GOMEZ RAMIREZ", "MOCG481211MTSRSD25") );
+			beneficiariosRequest.add(new BeneficiariosResponse("DANIEL TINAJERO TRISTAN","TITD600101HTSNRN09") );
+			beneficiariosRequest.add(new BeneficiariosResponse("MA. GUADALUPE MORENO CASTILLO", "ROBG900321MTSDRD01") );
+			beneficiariosRequest.add(new BeneficiariosResponse("SEBASTIAN GOMEZ RAMIREZ", "MOCG481211MTSRSD25") );
 			
 			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
 			
 		} else if ("46127209464".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosRequest("LILIA ISABEL PEREZ RODRIGUEZ", "AACM651123MTSLLR06") );
-			beneficiariosRequest.add(new BeneficiariosRequest("ZULEIMA GABRIELA ORDOÑEZ ALANIS", "PAVM910427HTLRZR04") );
+			beneficiariosRequest.add(new BeneficiariosResponse("LILIA ISABEL PEREZ RODRIGUEZ", "AACM651123MTSLLR06") );
+			beneficiariosRequest.add(new BeneficiariosResponse("ZULEIMA GABRIELA ORDOÑEZ ALANIS", "PAVM910427HTLRZR04") );
 			
 			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
 			
 		} else if ("64866806660".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosRequest("JIMENA VALENCIA ELIAS", "GORS990626HMCMMB09") );
-			beneficiariosRequest.add(new BeneficiariosRequest("JUAN DIEGO VALENCIA GARCIA", "VAGJ110218HQTLRNA1") );
+			beneficiariosRequest.add(new BeneficiariosResponse("JIMENA VALENCIA ELIAS", "GORS990626HMCMMB09") );
+			beneficiariosRequest.add(new BeneficiariosResponse("JUAN DIEGO VALENCIA GARCIA", "VAGJ110218HQTLRNA1") );
 			
 			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
 			
 		}  else if ("24715415865".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosRequest("VIRGINIA NIEVES IBARRA", "NIIV940411MQTVBR08") );
-			beneficiariosRequest.add(new BeneficiariosRequest("ADRIANA IBARRA MARTINEZ", "LOMA900209MQTPRD00"));
-			beneficiariosRequest.add(new BeneficiariosRequest("JOSE IBARRA AGUILAR", "CLARK5HVZNYD06"));
+			beneficiariosRequest.add(new BeneficiariosResponse("VIRGINIA NIEVES IBARRA", "NIIV940411MQTVBR08") );
+			beneficiariosRequest.add(new BeneficiariosResponse("ADRIANA IBARRA MARTINEZ", "LOMA900209MQTPRD00"));
+			beneficiariosRequest.add(new BeneficiariosResponse("JOSE IBARRA AGUILAR", "CLARK5HVZNYD06"));
 			
 			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
 			
