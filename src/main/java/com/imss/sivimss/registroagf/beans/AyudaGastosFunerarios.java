@@ -89,7 +89,7 @@ public class AyudaGastosFunerarios {
 		query.append("agf.ID_VELATORIO AS velatorioOperador, per.NUM_SEXO AS sexo, per.CVE_CURP AS curpFinado, \n");
 		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
 		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, \n");
-		query.append("dom.DES_ESTADO AS entidad, dom.DES_MUNICIPIO AS delegMunicipio, per.DES_TELEFONO AS telefono, \n");
+		query.append("dom.DES_ESTADO AS entidad, dom.DES_MUNICIPIO AS delegMunicipio, per.REF_TELEFONO AS telefono, \n");
 		query.append("agf.IND_CASILLA_CURP AS chkCurp, agf.IND_CASILLA_ACT_DEF AS chkActaDefuncion, \n");
 		query.append("agf.IND_CASILLA_COGF AS chkCuentaOriginalGF, agf.IND_CASILLA_NSSI AS chkNSSI, \n");
 		query.append("agf.ID_TIPO_IDENTIFICACION AS idOficial, agf.NUM_IDENTIFICACION AS numIdOficial, \n");
@@ -114,7 +114,7 @@ public class AyudaGastosFunerarios {
 		query.append("per.NOM_SEGUNDO_APELLIDO AS apMaterno, per.CVE_RFC AS curp, \n");
 		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
 		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, per.ID_ESTADO AS entidad, \n");
-		query.append("dom.DES_MUNICIPIO AS delegMunicipio, per.DES_TELEFONO AS telefono, \n");
+		query.append("dom.DES_MUNICIPIO AS delegMunicipio, per.REF_TELEFONO AS telefono, \n");
 		query.append("cben.ID_PARENTESCO AS parentesco, DATE_FORMAT(os.FEC_ALTA,'%d/%m/%Y') AS fechaSolicitud \n");
 		query.append("FROM SVC_FINADO fin \n");
 		query.append("JOIN SVC_ORDEN_SERVICIO os ON os.ID_ORDEN_SERVICIO = fin.ID_ORDEN_SERVICIO \n");
