@@ -38,9 +38,9 @@ import com.imss.sivimss.registroagf.util.MensajeResponseUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
 
-import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosServiceLocator;
-import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerarios;
-import _26._116._24._172.spes.services.AutorizaGF.AutorizaGastosFunerariosService;
+import mx.gob.imss.cit.clienteswebservices.sistrap.spes.services.autorizaGF.AutorizaGastosFunerariosServiceLocator;
+import mx.gob.imss.cit.clienteswebservices.sistrap.spes.services.autorizaGF.AutorizaGastosFunerarios;
+import mx.gob.imss.cit.clienteswebservices.sistrap.spes.services.autorizaGF.AutorizaGastosFunerariosService;
 
 import com.imss.sivimss.registroagf.exception.BadRequestException;
 import com.imss.sivimss.registroagf.model.request.UsuarioDto;
