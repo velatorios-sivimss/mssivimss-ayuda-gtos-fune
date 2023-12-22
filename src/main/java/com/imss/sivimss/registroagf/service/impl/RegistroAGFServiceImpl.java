@@ -250,6 +250,10 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
 			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
 			responseString = serviceClient.consultaGastosFunerarios(xml.toString());
+			if(responseString.contains("<cve-error>")) {
+				log.info(responseString);
+				return new Response<>(false, 200, ERROR_INFORMACION, null);				
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
