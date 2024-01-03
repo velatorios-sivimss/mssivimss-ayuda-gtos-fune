@@ -20,9 +20,17 @@ public class AyudaGastosFunerarios {
 	
 	public DatosRequest detalle(DatosRequest request, String formatoFecha) throws UnsupportedEncodingException {
 		String idFinado = request.getDatos().get("id").toString();
-		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, per.CVE_CURP AS cveCurp,  DATE_FORMAT(fin.FEC_DECESO,'%d/%m/%Y') AS fecDeceso, fin.ID_VELATORIO AS idVelatorio \n");
-		query.append("FROM SVC_FINADO fin JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \n");
-		query.append("WHERE ID_FINADO = " + idFinado);
+		StringBuilder query = new StringBuilder("SELECT per.CVE_NSS AS cveNss, \r\n"
+				+ "per.CVE_CURP AS cveCurp,  \r\n"
+				+ "DATE_FORMAT(fin.FEC_DECESO,'");
+		query.append(formatoFecha);
+		query.append("') AS fecDeceso, \r\n"
+				+ "fin.ID_VELATORIO AS idVelatorio,\r\n"
+				+ "CONCAT(per.NOM_PERSONA, ' ', per.NOM_PRIMER_APELLIDO, ' ', per.NOM_SEGUNDO_APELLIDO) AS nombre\r\n"
+				+ "FROM SVC_FINADO fin \r\n"
+				+ "JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \r\n"
+				+ "WHERE ID_FINADO = ");
+		query.append(idFinado);
 	
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
