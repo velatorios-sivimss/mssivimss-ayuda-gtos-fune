@@ -62,7 +62,8 @@ public class AyudaGastosFunerarios {
 		q.agregarParametroValues("CVE_NSS", setValor(registroAGFDto.getCveNSS()));
 		q.agregarParametroValues("CVE_CURP", setValor(registroAGFDto.getCveCURP()));
 		q.agregarParametroValues("FEC_DEFUNCION", "STR_TO_DATE(" + setValor(registroAGFDto.getFecDefuncion()) + ",'" + formatoFecha + "')");
-		q.agregarParametroValues("ID_VELATORIO", setValor(registroAGFDto.getIdVelatorio() + ""));
+		if( registroAGFDto.getIdVelatorio() != null )
+			q.agregarParametroValues("ID_VELATORIO", setValor(registroAGFDto.getIdVelatorio() + ""));
 		q.agregarParametroValues("ID_RAMO", registroAGFDto.getIdRamo() + "");
 		q.agregarParametroValues("ID_TIPO_IDENTIFICACION", registroAGFDto.getIdTipoId() + "");
 		q.agregarParametroValues("NUM_IDENTIFICACION", setValor(registroAGFDto.getNumIdentificacion()));
