@@ -94,7 +94,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		} catch (Exception e) {
 			log.error(e.getMessage());
         	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CONSULTA, authentication);
-			return null;
+        	throw new IOException(ERROR_INFORMACION, e.getCause());
         }  
 	}
 
@@ -107,7 +107,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		} catch (Exception e) {
 			log.error(e.getMessage());
         	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CONSULTA, authentication);
-			return null;
+        	throw new IOException(ERROR_INFORMACION, e.getCause());
         }
 	}
 
@@ -120,7 +120,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		} catch (Exception e) {
 			log.error(e.getMessage());
         	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CONSULTA, authentication);
-			return null;
+        	throw new IOException(ERROR_INFORMACION, e.getCause());
         }
 	}
 
@@ -142,7 +142,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		} catch (Exception e) {
 			log.error(e.getMessage());
         	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
-			return null;
+        	throw new IOException(ERROR_INFORMACION, e.getCause());
         }
 		
 	}
@@ -225,7 +225,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			e.printStackTrace();
 			log.error(e.getMessage());
        	    logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
-			return null;
+       	    throw new IOException(ERROR_INFORMACION, e.getCause());
        }
 	
 	}
