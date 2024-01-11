@@ -24,14 +24,14 @@ logging:
     org.hibernate: error
 
 endpoints:
-  mod-catalogos: ${msit_CATALOGOS}
-  ms-reportes: ${msit_REPORTES_GENERALES}
-  url-nssa: ${msit_URL-NSSA}
+  mod-catalogos: ''
+  ms-reportes: ''
+  url-nssa: http://tspi-stage.imss.gob.mx/agf-web-service/AyudaGastosFunerales?WSDL
 
 jwt:
-  secretkey-flujo: ${msit_SECRET_KEY}
-  secretkey-dominios: ${msit_SECRET_KEY_DOMINIO}
-  expiration-milliseconds: ${msit_SECRET_KEY_EXPIRATION}
+  secretkey-flujo: funcionamuybien
+  secretkey-dominios: funcionamuybiendominio
+  expiration-milliseconds: 360
 
 management:
   endpoints:
@@ -44,24 +44,24 @@ resilience4j.circuitbreaker:
   instances:
     msflujo:
       automaticTransitionFromOpenToHalfOpenEnabled: 'true'
-      failureRateThreshold: ${msit_HILOS}
+      failureRateThreshold: 5
       slidingWindowType: COUNT_BASED
       event-consumer-buffer-size: '10'
       registerHealthIndicator: 'true'
-      waitDurationInOpenState: ${msit_TIEMPO_DURACION}
-      permittedNumberOfCallsInHalfOpenState: ${msit_NUMERO_INTENTOS}
+      waitDurationInOpenState: 5s
+      permittedNumberOfCallsInHalfOpenState: 5
       slidingWindowSize: '5'
 resilience4j.retry:
   retryAspectOrder: 2
   instances:
     msflujo:
-      maxAttempts: ${msit_NUMERO_INTENTOS}
-      waitDuration: ${msit_TIEMPO_DURACION}
+      maxAttempts: 5
+      waitDuration: 5s
 resilience4j.timelimiter:
   timeLimiterAspectOrder: 3
   instances:
     msflujo:
-      timeout-duration: ${msit_TIEMPO_DURACION}
+      timeout-duration: 5s
 
-formato_fecha: ${msit_FORMATO_FECHA}
-ruta-log: ${msit_RUTA_LOG}
+formato_fecha: '%d/%m/%Y %H:%i:%s'
+ruta-log: ''
