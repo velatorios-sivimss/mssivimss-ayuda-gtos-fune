@@ -1,5 +1,7 @@
 package com.imss.sivimss.registroagf.model.request;
 
+import java.util.Date;
+
 import com.imss.sivimss.registroagf.certificacion.AGFAseguradoFinado;
 import com.imss.sivimss.registroagf.certificacion.AGFDocumentacionProbatoria;
 import com.imss.sivimss.registroagf.certificacion.AGFInteresado;
@@ -28,7 +30,7 @@ public class GastosAgfAseguradoraDto {
 
 	    private Integer ramo;
 
-	    private java.util.Date fechaDefuncion;
+	    private Date fechaDefuncion;
 
 	    private String delegacion;
 

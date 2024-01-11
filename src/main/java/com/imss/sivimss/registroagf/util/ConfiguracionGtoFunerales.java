@@ -20,18 +20,11 @@ public class ConfiguracionGtoFunerales {
 	@Bean
 	public SOAPConnectClient soapConnectClient(Jaxb2Marshaller marshaller) {
 		SOAPConnectClient client = new SOAPConnectClient();
-	//	client.setDefaultUri(endpoint);
+		client.setDefaultUri(endpoint);
 		client.setMarshaller(marshaller);
 		client.setUnmarshaller(marshaller);
 		return client;
 	}
 	
-	/**@Bean
-	public SOAPConnectClient obtenerGtoPensionados(Jaxb2Marshaller marshaller) {
-		SOAPConnectClient client = new SOAPConnectClient();
-		client.setDefaultUri(agfPensionados);
-		client.setMarshaller(marshaller);
-		client.setUnmarshaller(marshaller);
-		return client;
-	}*/
+	
 }
