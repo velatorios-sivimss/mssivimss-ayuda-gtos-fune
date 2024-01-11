@@ -1,7 +1,5 @@
 package com.imss.sivimss.registroagf.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
@@ -9,14 +7,8 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 @Configuration
 public class ConfiguracionGtoFunerales {
 
-	@Value("${endpoints.agf-asegurados}")
-	private String agfAsegurados;
 	
-	@Value("${endpoints.agf-pensionado}")
-	private String agfPensionados;
-	
-	@Autowired
-	private SOAPConnectClient soapConnectClient;
+	private String endpoint="http://tspi-stage.imss.gob.mx/agf-web-service/AyudaGastosFunerales?WSDL";
 	
 	@Bean
 	public Jaxb2Marshaller marshaller() {
@@ -26,20 +18,20 @@ public class ConfiguracionGtoFunerales {
 	}
 	
 	@Bean
-	public SOAPConnectClient obtenerGtoAsegurados(Jaxb2Marshaller marshaller) {
+	public SOAPConnectClient soapConnectClient(Jaxb2Marshaller marshaller) {
 		SOAPConnectClient client = new SOAPConnectClient();
-		client.setDefaultUri(agfAsegurados);
+	//	client.setDefaultUri(endpoint);
 		client.setMarshaller(marshaller);
 		client.setUnmarshaller(marshaller);
 		return client;
 	}
 	
-	@Bean
+	/**@Bean
 	public SOAPConnectClient obtenerGtoPensionados(Jaxb2Marshaller marshaller) {
 		SOAPConnectClient client = new SOAPConnectClient();
 		client.setDefaultUri(agfPensionados);
 		client.setMarshaller(marshaller);
 		client.setUnmarshaller(marshaller);
 		return client;
-	}
+	}*/
 }

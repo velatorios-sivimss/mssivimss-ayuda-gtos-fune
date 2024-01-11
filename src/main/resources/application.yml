@@ -27,6 +27,8 @@ endpoints:
   mod-catalogos: ''
   ms-reportes: ''
   url-nssa: http://tspi-stage.imss.gob.mx/agf-web-service/AyudaGastosFunerales?WSDL
+  agf-asegurados: http://certificacion.service.agf.ctirss.imss.gob.mx/AyudaGastosFunerales/obtenerAGFAsegurado
+  agf-pensionado: http://certificacion.service.agf.ctirss.imss.gob.mx/AyudaGastosFunerales/obtenerAGFPensionado
 
 jwt:
   secretkey-flujo: funcionamuybien
