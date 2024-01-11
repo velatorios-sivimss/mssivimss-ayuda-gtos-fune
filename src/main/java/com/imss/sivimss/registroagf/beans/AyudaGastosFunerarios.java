@@ -93,25 +93,30 @@ public class AyudaGastosFunerarios {
 	}
 	
 	public DatosRequest datosAsegurado(DatosRequest request, Integer idFinado) throws UnsupportedEncodingException {
-		StringBuilder query = new StringBuilder("SELECT agf.CVE_NSS AS nss, agf.CVE_CURP AS curp, ID_RAMO AS ramo, \n");
-		query.append("DATE_FORMAT(agf.FEC_DEFUNCION,'%d/%m/%Y') AS fechaDefuncion, CONVERT(vel.ID_DELEGACION,CHAR) AS delegacion, \n");
-		query.append("agf.ID_VELATORIO AS velatorioOperador, per.NUM_SEXO AS sexo, per.CVE_CURP AS curpFinado, \n");
-		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
-		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, \n");
-		query.append("dom.DES_ESTADO AS entidad, dom.DES_MUNICIPIO AS delegMunicipio, per.REF_TELEFONO AS telefono, \n");
-		query.append("agf.IND_CASILLA_CURP AS chkCurp, agf.IND_CASILLA_ACT_DEF AS chkActaDefuncion, \n");
-		query.append("agf.IND_CASILLA_COGF AS chkCuentaOriginalGF, agf.IND_CASILLA_NSSI AS chkNSSI, \n");
-		query.append("agf.ID_TIPO_IDENTIFICACION AS idOficial, agf.NUM_IDENTIFICACION AS numIdOficial, \n");
-		query.append("agf.CVE_CURP_BENEFICIARIO AS curpBeneficiario, agf.NOM_BENEFICIARIO AS nomBeneficiario \n");
-		query.append("FROM SVT_AYUDA_GASTOS_FUNERAL agf \n");
-		query.append("JOIN SVC_VELATORIO vel ON vel.ID_VELATORIO = agf.ID_VELATORIO \n");
-		query.append("JOIN SVC_FINADO fin ON fin.ID_FINADO = agf.ID_FINADO \n");
-		query.append("JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \n");
-		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = fin.ID_DOMICILIO \n");
-		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
-		query.append("WHERE agf.ID_FINADO = " + idFinado);
-		query.append(" GROUP BY fin.ID_FINADO");
-		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
+		StringBuilder query = new StringBuilder("SELECT \r\n"
+				+ "per.CVE_NSS AS nss, \r\n"
+				+ "per.CVE_CURP AS curp, \r\n"
+				+ "CONVERT(vel.ID_DELEGACION,CHAR) AS delegacion, \r\n"
+				+ "fin.ID_VELATORIO AS velatorioOperador, \r\n"
+				+ "per.NUM_SEXO AS sexo, \r\n"
+				+ "per.CVE_CURP AS curpFinado, \r\n"
+				+ "CONCAT(dom.REF_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \r\n"
+				+ "dom.REF_COLONIA AS colonia, \r\n"
+				+ "CONVERT(dom.REF_CP,CHAR) AS cp, \r\n"
+				+ "dom.REF_MUNICIPIO AS ciudad, \r\n"
+				+ "dom.REF_ESTADO AS entidad, \r\n"
+				+ "dom.REF_MUNICIPIO AS delegMunicipio, \r\n"
+				+ "per.REF_TELEFONO AS telefono\r\n"
+				+ "FROM \r\n"
+				+ "SVC_FINADO fin\r\n"
+				+ "JOIN SVC_VELATORIO vel ON vel.ID_VELATORIO = fin.ID_VELATORIO \r\n"
+				+ "JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \r\n"
+				+ "LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = fin.ID_DOMICILIO \r\n"
+				+ "WHERE fin.ID_FINADO = ");
+		query.append(idFinado);
+		query.append(" \r\n"
+				+ "ORDER BY fin.ID_FINADO \r\n"
+				+ "DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
@@ -119,22 +124,30 @@ public class AyudaGastosFunerarios {
 	}
 	
 	public DatosRequest datosInteresado(DatosRequest request, Integer idFinado) throws UnsupportedEncodingException {
-		StringBuilder query = new StringBuilder("SELECT per.NOM_PERSONA AS nombre, per.NOM_PRIMER_APELLIDO AS apPaterno, \n");
-		query.append("per.NOM_SEGUNDO_APELLIDO AS apMaterno, per.CVE_RFC AS curp, \n");
-		query.append("CONCAT(dom.DES_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \n");
-		query.append("dom.DES_COLONIA AS colonia, CONVERT(dom.DES_CP,CHAR) AS cp, cp.DES_CIUDAD AS ciudad, per.ID_ESTADO AS entidad, \n");
-		query.append("dom.DES_MUNICIPIO AS delegMunicipio, per.REF_TELEFONO AS telefono, \n");
-		query.append("cben.ID_PARENTESCO AS parentesco, DATE_FORMAT(os.FEC_ALTA,'%d/%m/%Y') AS fechaSolicitud \n");
-		query.append("FROM SVC_FINADO fin \n");
-		query.append("JOIN SVC_ORDEN_SERVICIO os ON os.ID_ORDEN_SERVICIO = fin.ID_ORDEN_SERVICIO \n");
-		query.append("JOIN SVC_CONTRATANTE con ON con.ID_CONTRATANTE = os.ID_CONTRATANTE \n");
-		query.append("JOIN SVC_PERSONA per ON per.ID_PERSONA = con.ID_PERSONA \n");
-		query.append("JOIN SVT_CONTRATANTE_BENEFICIARIOS cben ON cben.ID_PERSONA = fin.ID_PERSONA \n");
-		query.append("LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = con.ID_DOMICILIO \n");
-		query.append("LEFT JOIN SVC_CP cp ON (cp.CVE_CODIGO_POSTAL = dom.DES_CP AND UPPER(cp.DES_COLONIA) = UPPER(dom.DES_COLONIA)) \n");
-		query.append("WHERE fin.ID_FINADO = " + idFinado);
-		query.append(" GROUP BY fin.ID_FINADO");
-		query.append(" ORDER BY fin.ID_FINADO DESC LIMIT 1");
+		StringBuilder query = new StringBuilder("SELECT \r\n"
+				+ "per.NOM_PERSONA AS nombre, \r\n"
+				+ "per.NOM_PRIMER_APELLIDO AS apPaterno, \r\n"
+				+ "per.NOM_SEGUNDO_APELLIDO AS apMaterno, \r\n"
+				+ "per.CVE_RFC AS curp, \r\n"
+				+ "CONCAT(dom.REF_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \r\n"
+				+ "dom.REF_COLONIA AS colonia, \r\n"
+				+ "CONVERT(dom.REF_CP,CHAR) AS cp, \r\n"
+				+ "dom.REF_MUNICIPIO AS ciudad, \r\n"
+				+ "per.ID_ESTADO AS entidad, \r\n"
+				+ "dom.REF_MUNICIPIO AS delegMunicipio, \r\n"
+				+ "per.REF_TELEFONO AS telefono, \r\n"
+				+ "IFNULL(os.ID_PARENTESCO,11) AS parentesco, \r\n"
+				+ "DATE_FORMAT(os.FEC_ALTA,'%d/%m/%Y') AS fechaSolicitud \r\n"
+				+ "FROM SVC_FINADO fin \r\n"
+				+ "JOIN SVC_ORDEN_SERVICIO os ON os.ID_ORDEN_SERVICIO = fin.ID_ORDEN_SERVICIO \r\n"
+				+ "JOIN SVC_CONTRATANTE con ON con.ID_CONTRATANTE = os.ID_CONTRATANTE \r\n"
+				+ "JOIN SVC_PERSONA per ON per.ID_PERSONA = con.ID_PERSONA  \r\n"
+				+ "LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = con.ID_DOMICILIO \r\n"
+				+ "WHERE \r\n"
+				+ "fin.ID_FINADO = " + idFinado);
+		query.append("\r\n"
+				+ "ORDER BY fin.ID_FINADO \r\n"
+				+ "DESC LIMIT 1");
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
