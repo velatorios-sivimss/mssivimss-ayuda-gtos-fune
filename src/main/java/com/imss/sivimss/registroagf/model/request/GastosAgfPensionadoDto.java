@@ -2,9 +2,9 @@ package com.imss.sivimss.registroagf.model.request;
 
 import java.util.Date;
 
-import com.imss.sivimss.registroagf.soap.AGF_Documentacion_Probatoria;
-import com.imss.sivimss.registroagf.soap.AGF_Interesado;
-import com.imss.sivimss.registroagf.soap.AGF_Pensionado_Finado;
+import com.imss.sivimss.registroagf.certificacion.AGFDocumentacionProbatoria;
+import com.imss.sivimss.registroagf.certificacion.AGFInteresado;
+import com.imss.sivimss.registroagf.certificacion.AGFPensionadoFinado;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,10 +38,10 @@ public class GastosAgfPensionadoDto {
 
 	    private Integer usuarioOperador;
 
-	    private AGF_Pensionado_Finado datosFinado;
+	    private AGFPensionadoFinado datosFinado;
 
-	    private AGF_Interesado datosInteresado;
+	    private AGFInteresado datosInteresado;
 
-	    private AGF_Documentacion_Probatoria documentacionProbatoria;
+	    private AGFDocumentacionProbatoria documentacionProbatoria;
 
 }

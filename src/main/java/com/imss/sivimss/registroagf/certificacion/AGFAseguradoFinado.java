@@ -7,6 +7,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * <p>
  * Clase Java para AGF_Asegurado_Finado complex type.
@@ -49,6 +54,10 @@ import javax.xml.bind.annotation.XmlType;
         "telefono",
         "nacionalidad"
 })
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AGFAseguradoFinado {
 
     @XmlElement(required = true)

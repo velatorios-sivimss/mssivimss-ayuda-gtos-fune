@@ -1,8 +1,8 @@
 package com.imss.sivimss.registroagf.model.request;
 
-import com.imss.sivimss.registroagf.soap.AGF_Asegurado_Finado;
-import com.imss.sivimss.registroagf.soap.AGF_Documentacion_Probatoria;
-import com.imss.sivimss.registroagf.soap.AGF_Interesado;
+import com.imss.sivimss.registroagf.certificacion.AGFAseguradoFinado;
+import com.imss.sivimss.registroagf.certificacion.AGFDocumentacionProbatoria;
+import com.imss.sivimss.registroagf.certificacion.AGFInteresado;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,9 +36,9 @@ public class GastosAgfAseguradoraDto {
 
 	    private Integer usuarioOperador;
 
-	    private AGF_Asegurado_Finado datosFinado;
+	    private AGFAseguradoFinado datosFinado;
 
-	    private AGF_Interesado datosInteresado;
+	    private AGFInteresado datosInteresado;
 
-	    private AGF_Documentacion_Probatoria documentacionProbatoria;
+	    private AGFDocumentacionProbatoria documentacionProbatoria;
 }

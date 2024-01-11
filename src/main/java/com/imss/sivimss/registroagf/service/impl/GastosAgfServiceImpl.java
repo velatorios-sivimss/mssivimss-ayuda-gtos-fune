@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import com.imss.sivimss.registroagf.model.request.GastosAgfAseguradoraDto;
 import com.imss.sivimss.registroagf.service.GastosAgfService;
-import com.imss.sivimss.registroagf.soap.AGF_Asegurado_Finado;
-import com.imss.sivimss.registroagf.soap.AGF_Documentacion_Probatoria;
-import com.imss.sivimss.registroagf.soap.AGF_Interesado;
+import com.imss.sivimss.registroagf.certificacion.AGFAseguradoFinado;
+import com.imss.sivimss.registroagf.certificacion.AGFDocumentacionProbatoria;
+import com.imss.sivimss.registroagf.certificacion.AGFInteresado;
 import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.Response;
 import com.imss.sivimss.registroagf.util.SOAPConnectClient;
@@ -45,10 +45,13 @@ public class GastosAgfServiceImpl implements GastosAgfService {
 				.delegacion("08")
 				.velatorioOperador(03)
 				.usuarioOperador(22)
-				.datosFinado(new AGF_Asegurado_Finado(new BigInteger("2"), "Calle Siempre Viva número 14", "San Francisco", "54440", "CHIHUAHUA", "CHIHUAHUA", "Cuautitlan", "5523539311", false))
-				.datosInteresado(new AGF_Interesado
-						("ALBERTO", "SALINAS", "PEDRAZA", "ROVJ690723HCLMNS04", "Coyuca 26", "Las Playas", "39390", "CHIHUAHUA", new BigInteger("08"), "CHIHUAHUA", new BigInteger("774"), "5589945214", new BigInteger("7"),fecha))
-				.documentacionProbatoria(new AGF_Documentacion_Probatoria(true, true, true, true, new BigInteger("7"), "12345678901234567890"))
+				.datosFinado(new AGFAseguradoFinado(new BigInteger("2"), "Calle Siempre Viva número 14", "San Francisco", "54440", "CHIHUAHUA", "CHIHUAHUA", "Cuautitlan", "5523539311", false))
+			/*	.datosInteresado(new AGFInteresado("ALBERTO", "SALINAS", "PEDRAZA", "ROVJ690723HCLMNS04", "Coyuca 26", "Las Playas", "39390", "CHIHUAHUA",
+						new BigInteger("08"), "CHIHUAHUA", new BigInteger("774"), "5589945214", new BigInteger("7"),fecha))*/
+				
+				.datosInteresado(new AGFInteresado("ALBERTO", "SALINAS", "PEDRAZA", "ROVJ690723HCLMNS04", "Coyuca 26", "Las Playas", "39390", "CHIHUAHUA",
+						new BigInteger("08"), "CHIHUAHUA", new BigInteger("774"), "5589945214", new BigInteger("7"),null))
+				.documentacionProbatoria(new AGFDocumentacionProbatoria(true, true, true, true, new BigInteger("7"), "12345678901234567890"))
 				.build();
 		return (Response<Object>) soapConnectClient.callWebServices(agfAseguradoraDto);
 		} catch (ParseException e) {

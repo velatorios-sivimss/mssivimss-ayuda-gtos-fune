@@ -21,7 +21,7 @@ public class ConfiguracionGtoFunerales {
 	@Bean
 	public Jaxb2Marshaller marshaller() {
 		Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-		marshaller.setContextPath("com.imss.sivimss.registroagf.soap");
+		marshaller.setContextPath("com.imss.sivimss.registroagf.certificacion");
 		return marshaller;
 	}
 	
