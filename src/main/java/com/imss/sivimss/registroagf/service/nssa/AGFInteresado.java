@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import lombok.ToString;
+
 
 /**
  * <p>Clase Java para AGF_Interesado complex type.
@@ -59,6 +61,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "parentesco",
     "fechaSolicitud"
 })
+@ToString
 public class AGFInteresado {
 
     @XmlElement(required = true)

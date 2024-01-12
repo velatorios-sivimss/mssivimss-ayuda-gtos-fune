@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import lombok.ToString;
+
 
 /**
  * <p>Clase Java para AGF_Documentacion_Probatoria complex type.
@@ -41,6 +43,7 @@ import javax.xml.bind.annotation.XmlType;
     "idOficial",
     "numIdOficial"
 })
+@ToString
 public class AGFDocumentacionProbatoria {
 
     protected boolean curp;

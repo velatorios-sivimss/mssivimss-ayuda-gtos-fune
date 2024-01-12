@@ -249,6 +249,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				log.info(" RespuestaAsegurado salida asegurado",asegurado);
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
 				log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
+				log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
+				log.info(" RespuestaAsegurado salida getExito", salida.getExito());
+				log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
 				log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion().getCertificacion());
