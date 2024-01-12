@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -243,9 +244,11 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			} else {
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + asegurado, authentication);
-				
+			
+
+				log.info(" RespuestaAsegurado salida asegurado",asegurado);
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
-				
+				log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
 				log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion().getCertificacion());
