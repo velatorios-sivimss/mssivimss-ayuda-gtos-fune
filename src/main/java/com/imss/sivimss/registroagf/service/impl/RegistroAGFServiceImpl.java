@@ -40,7 +40,6 @@ import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
 import com.imss.sivimss.registroagf.service.nssa.AGFPensionado;
 import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.LogUtil;
-import com.imss.sivimss.registroagf.util.MensajeResponseUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
 
@@ -66,7 +65,6 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	private String urlDominio;
 	
 	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
-	private static final String AGREGADO_CORRECTAMENTE = "30"; // El ataúd ya fue registrado como donado exitosamente.
 	
 	private static final String CONSULTA = "/consulta";
 	
@@ -186,7 +184,8 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			interesado.setCiudad((String)datos2.get(0).get("ciudad")==null?"":(String)datos2.get(0).get("ciudad"));
 			interesado.setEntidad((Integer)datos2.get(0).get("entidad")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("entidad").toString()));
 			interesado.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
-			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"":(String)datos2.get(0).get("telefono"));
+			interesado.setLada(new BigInteger("111"));
+			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"1111111111":(String)datos2.get(0).get("telefono"));
 			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
 			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
 			
@@ -207,7 +206,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		try { 
 			if (intRamo == PENSIONADO) {
 				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + pensionado, authentication);
+				
 				RespuestaPensionado salida = soapClientService.obtenerRespuestaPensionado(pensionado);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
+				
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -224,7 +230,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				}
 
 			} else {
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + asegurado, authentication);
+				
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -518,7 +531,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.setTransaccion("1");
 		asegurado.setTipoProceso("01");
 		asegurado.setNss( registroAGFDto.getCveNSS() );
-		asegurado.setCurp( registroAGFDto.getCveCURPBeneficiario());
+		asegurado.setCurp( registroAGFDto.getCveCURP());
 		asegurado.setRamo( new BigInteger(registroAGFDto.getIdRamo().toString()) );
 		asegurado.setFechaDefuncion( getXMLGregorianCalendar(registroAGFDto.getFecDefuncion()) );
 		asegurado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
@@ -532,7 +545,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
 		asegurado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
 		asegurado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
-		asegurado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"":(String)datos1.get(0).get("telefono"));
+		asegurado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"1111111111":(String)datos1.get(0).get("telefono"));
 		asegurado.getDatosFinado().setNacionalidad(false);
 		
 		asegurado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
@@ -549,7 +562,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.setTransaccion("1");
 		pensionado.setTipoProceso("01");
 		pensionado.setNss( registroAGFDto.getCveNSS() );
-		pensionado.setCurp( registroAGFDto.getCveCURPBeneficiario());
+		pensionado.setCurp( registroAGFDto.getCveCURP());
 		pensionado.setRamo( new BigInteger(registroAGFDto.getIdRamo().toString()) );
 		pensionado.setFechaDefuncion( getXMLGregorianCalendar(registroAGFDto.getFecDefuncion()) );
 		pensionado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
@@ -557,7 +570,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 
 		pensionado.setDatosFinado(new AGFPensionadoFinado());
 		pensionado.getDatosFinado().setSelBeneficiario( registroAGFDto.getNombreBeneficiario() ); 
-		pensionado.getDatosFinado().setCurp(registroAGFDto.getCveCURP());
+		pensionado.getDatosFinado().setCurp(registroAGFDto.getCveCURPBeneficiario());
 		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
 		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
 		pensionado.getDatosFinado().setColonia((String)datos1.get(0).get("colonia")==null?"":(String)datos1.get(0).get("colonia"));
@@ -565,7 +578,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
 		pensionado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
 		pensionado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
-		pensionado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"":(String)datos1.get(0).get("telefono"));
+		pensionado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"1111111111":(String)datos1.get(0).get("telefono"));
 		pensionado.getDatosFinado().setNacionalidad(false);
 		
 		pensionado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());

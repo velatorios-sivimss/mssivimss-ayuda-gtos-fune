@@ -128,7 +128,7 @@ public class AyudaGastosFunerarios {
 				+ "per.NOM_PERSONA AS nombre, \r\n"
 				+ "per.NOM_PRIMER_APELLIDO AS apPaterno, \r\n"
 				+ "per.NOM_SEGUNDO_APELLIDO AS apMaterno, \r\n"
-				+ "per.CVE_RFC AS curp, \r\n"
+				+ "per.CVE_CURP AS curp, \r\n"
 				+ "CONCAT(dom.REF_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \r\n"
 				+ "dom.REF_COLONIA AS colonia, \r\n"
 				+ "CONVERT(dom.REF_CP,CHAR) AS cp, \r\n"

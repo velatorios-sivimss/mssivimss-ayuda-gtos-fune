@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 
@@ -73,6 +74,7 @@ public class AGFAsegurado {
     protected BigInteger ramo;
     @XmlElement(required = true)
     @XmlSchemaType(name = "date")
+    @XmlJavaTypeAdapter(DateAdapter.class)
     protected XMLGregorianCalendar fechaDefuncion;
     @XmlElement(required = true)
     protected String delegacion;
