@@ -205,21 +205,41 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		// Armado de información para NSSA
 		try { 
-			if (intRamo == PENSIONADO) { 
+			if (intRamo == PENSIONADO) {
+				
 				RespuestaPensionado salida = soapClientService.obtenerRespuestaPensionado(pensionado);
-				AGFResponseDto respuesta = new AGFResponseDto();
-				//folioAgf = salida.getResolucion().getCertificacionPensionado().getD
-				//importeAprobado = salida.getResolucion().getCertificacionPensionado().get
-				fecAprobacion = salida.getResolucion().getCertificacionPensionado().getFechaSolicitud().toString();
+				
+				if( salida != null
+					&& salida.getResolucion()!=null 
+					&& salida.getResolucion().getCertificacionPensionado() != null 
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado()!= null
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado().getFolioAGF() != null
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado().getMontoAyuda() != null
+					&& salida.getResolucion().getCertificacionPensionado().getFechaSolicitud() != null) {
+				
+						folioAgf = salida.getResolucion().getCertificacionPensionado().getDatosFinado().getFolioAGF();
+						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacionPensionado().getDatosFinado().getMontoAyuda() );
+						fecAprobacion = salida.getResolucion().getCertificacionPensionado().getFechaSolicitud().toString();
+					
+				}
 
 			} else {
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
-				AGFResponseDto respuesta = new AGFResponseDto();
 				
-				//folioAgf = salida.getResolucion().getCertificacion().getD
-				//importeAprobado = salida.getResolucion().getCertificacion().get
-				fecAprobacion = salida.getResolucion().getCertificacion().getFechaSolicitud().toString();
-
+				if( salida != null
+					&& salida.getResolucion()!=null 
+					&& salida.getResolucion().getCertificacion() != null 
+					&& salida.getResolucion().getCertificacion().getDatosFinado()!= null
+					&& salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF() != null
+					&& salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() != null
+					&& salida.getResolucion().getCertificacion().getFechaSolicitud() != null ) {
+					
+						folioAgf = salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF();
+						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() );
+						fecAprobacion = salida.getResolucion().getCertificacion().getFechaSolicitud().toString();
+					
+				}
+				
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -340,13 +360,15 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		registroAGFDto.setIdPagoDetalle(idPagoDetalle);
 		
-		try { 
-			 return   MensajeResponseUtil.mensajeResponseObjecto((Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication), AGREGADO_CORRECTAMENTE);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-        	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
-        	throw new IOException(ERROR_INFORMACION, e.getCause());
-        }
+		response3 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication);
+		
+		if( folioAgf.isEmpty() ) {
+			response3.setError(true);
+			response3.setCodigo( HttpStatus.INTERNAL_SERVER_ERROR.value() );
+			response3.setMensaje( "52" );
+		}
+		
+		return response3;
 		
 	}
 
@@ -514,12 +536,12 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.getDatosFinado().setNacionalidad(false);
 		
 		asegurado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
-		asegurado.getDocumentacionProbatoria().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
-		asegurado.getDocumentacionProbatoria().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
-		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
-		asegurado.getDocumentacionProbatoria().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
-		asegurado.getDocumentacionProbatoria().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("idOficial").toString()));
-		asegurado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+		asegurado.getDocumentacionProbatoria().setCurp( registroAGFDto.getCasillaCurp() );
+		asegurado.getDocumentacionProbatoria().setActaDefuncion( registroAGFDto.getCasillaActDef() );
+		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF( registroAGFDto.getCasillaCogf() );
+		asegurado.getDocumentacionProbatoria().setDocumentoConNSS( registroAGFDto.getCasillaNssi() );
+		asegurado.getDocumentacionProbatoria().setIdOficial( new BigInteger(registroAGFDto.getIdTipoId().toString()) );
+		asegurado.getDocumentacionProbatoria().setNumIdOficial( registroAGFDto.getNumIdentificacion());
 	}
 	
 	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1, RegistroAGFDto registroAGFDto) throws DatatypeConfigurationException, ParseException {
