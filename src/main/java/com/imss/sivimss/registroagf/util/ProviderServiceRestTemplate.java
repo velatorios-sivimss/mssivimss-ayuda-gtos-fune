@@ -26,6 +26,8 @@ public class ProviderServiceRestTemplate {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
+	private static final String MENSAJE = "Ha ocurrido un error al recuperar la informacion";
+	
 	private static final Logger log = LoggerFactory.getLogger(ProviderServiceRestTemplate.class);
 
 	public Response<?> consumirServicio(Map<String, Object> dato, String url, Authentication authentication)
@@ -40,7 +42,21 @@ public class ProviderServiceRestTemplate {
 			throw exception;
 		}
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	public Response<Object> consumirServicioActMult( Object dato, String url, Authentication authentication)
+			throws IOException {
+		try {
+			Response<?> respuestaGenerado = restTemplateUtil.sendPostRequestByteArrayToken(url,
+					dato, jwtTokenProvider.createToken((String) authentication.getPrincipal()),
+					Response.class);
+			return (Response<Object>) validarResponse(respuestaGenerado);
+		} catch (IOException exception) {
+			log.error(MENSAJE);
+			throw exception;
+		}
+	}
+	
 	public Response<?> consumirServicioReportes(Map<String, Object> dato,
 			String url, Authentication authentication) throws IOException {
 		try {

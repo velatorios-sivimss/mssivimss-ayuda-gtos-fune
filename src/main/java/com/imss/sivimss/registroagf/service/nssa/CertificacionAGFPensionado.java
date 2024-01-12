@@ -28,6 +28,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *         &lt;element name="fechaDefuncion" type="{http://www.w3.org/2001/XMLSchema}date"/>
  *         &lt;element name="fechaSolicitud" type="{http://www.w3.org/2001/XMLSchema}date"/>
  *         &lt;element name="datosBeneficiarios" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Respuesta_Pensionado_Beneficiarios"/>
+ *         &lt;element name="codigoRetorno" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="datosFinado" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Respuesta_Pensionado_Finado"/>
+ *         &lt;element name="datosVelatorio" type="{http://certificacion.service.agf.ctirss.imss.gob.mx/}AGF_Respuesta_Pensionado_Velatorio"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -46,7 +49,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "ramo",
     "fechaDefuncion",
     "fechaSolicitud",
-    "datosBeneficiarios"
+    "datosBeneficiarios",
+    "codigoRetorno",
+    "datosFinado",
+    "datosVelatorio"
 })
 public class CertificacionAGFPensionado {
 
@@ -70,6 +76,12 @@ public class CertificacionAGFPensionado {
     protected XMLGregorianCalendar fechaSolicitud;
     @XmlElement(required = true)
     protected AGFRespuestaPensionadoBeneficiarios datosBeneficiarios;
+    @XmlElement(required = true)
+    protected String codigoRetorno;
+    @XmlElement(required = true)
+    protected AGFRespuestaPensionadoFinado datosFinado;
+    @XmlElement(required = true)
+    protected AGFRespuestaPensionadoVelatorio datosVelatorio;
 
     /**
      * Obtiene el valor de la propiedad cadena.
@@ -285,6 +297,78 @@ public class CertificacionAGFPensionado {
      */
     public void setDatosBeneficiarios(AGFRespuestaPensionadoBeneficiarios value) {
         this.datosBeneficiarios = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad codigoRetorno.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCodigoRetorno() {
+        return codigoRetorno;
+    }
+
+    /**
+     * Define el valor de la propiedad codigoRetorno.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCodigoRetorno(String value) {
+        this.codigoRetorno = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad datosFinado.
+     * 
+     * @return
+     *     possible object is
+     *     {@link AGFRespuestaPensionadoFinado }
+     *     
+     */
+    public AGFRespuestaPensionadoFinado getDatosFinado() {
+        return datosFinado;
+    }
+
+    /**
+     * Define el valor de la propiedad datosFinado.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link AGFRespuestaPensionadoFinado }
+     *     
+     */
+    public void setDatosFinado(AGFRespuestaPensionadoFinado value) {
+        this.datosFinado = value;
+    }
+
+    /**
+     * Obtiene el valor de la propiedad datosVelatorio.
+     * 
+     * @return
+     *     possible object is
+     *     {@link AGFRespuestaPensionadoVelatorio }
+     *     
+     */
+    public AGFRespuestaPensionadoVelatorio getDatosVelatorio() {
+        return datosVelatorio;
+    }
+
+    /**
+     * Define el valor de la propiedad datosVelatorio.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link AGFRespuestaPensionadoVelatorio }
+     *     
+     */
+    public void setDatosVelatorio(AGFRespuestaPensionadoVelatorio value) {
+        this.datosVelatorio = value;
     }
 
 }

@@ -13,6 +13,7 @@ import lombok.Setter;
 public class RegistroAGFDto {
 	
 	Integer idFinado;
+	Integer idPagoBitacora;
 	Integer idPagoDetalle;
 	String cveNSS;
 	String cveCURP;

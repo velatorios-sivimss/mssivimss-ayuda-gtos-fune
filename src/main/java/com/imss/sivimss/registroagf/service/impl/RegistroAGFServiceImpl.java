@@ -6,12 +6,15 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -19,6 +22,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.imss.sivimss.registroagf.util.PagosUtil;
+import com.imss.sivimss.registroagf.model.request.ActualizarMultiRequest;
 import com.imss.sivimss.registroagf.beans.AyudaGastosFunerarios;
 import com.imss.sivimss.registroagf.service.RegistroAGFService;
 import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
@@ -50,6 +56,7 @@ import com.imss.sivimss.registroagf.model.response.BeneficiariosResponse;
 import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.model.request.BeneficiariosRequest;
+import com.imss.sivimss.registroagf.model.request.CrearPagosRequest;
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
 
 @Service
@@ -62,6 +69,8 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	private static final String AGREGADO_CORRECTAMENTE = "30"; // El ataúd ya fue registrado como donado exitosamente.
 	
 	private static final String CONSULTA = "/consulta";
+	
+	private static final String ACTUALIZAR_MULTIPLES = "/actualizar/multiples";
 	
 	private static final String CREAR = "/crear";
 	
@@ -85,6 +94,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	@Autowired
 	private SoapClientService soapClientService;
 
+	@Autowired
+	private ModelMapper modelMapper;
+	
 	@Override
 	public Response<Object> detalle(DatosRequest request, Authentication authentication) throws IOException {
          AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
@@ -124,6 +136,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
         }
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> guardarAGF(DatosRequest request, Authentication authentication) throws IOException {
 		Gson gson = new Gson();
@@ -131,19 +144,231 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		RegistroAGFDto registroAGFDto = gson.fromJson(datosJson, RegistroAGFDto.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		if (registroAGFDto.getIdFinado() == null || registroAGFDto.getIdPagoDetalle() == null) {
+		if (registroAGFDto.getIdFinado() == null || registroAGFDto.getIdPagoBitacora() == null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
 		AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
 		registroAGFDto.setIdUsuarioAlta(usuarioDto.getIdUsuario());
+		Integer intRamo = registroAGFDto.getIdRamo();
+		AGFAsegurado asegurado = new AGFAsegurado();
+		AGFPensionado pensionado = new AGFPensionado();
+		String folioAgf = "";
+		String fecAprobacion = null;
+		Double importeAprobado = 0.0;
+		String estatusPago = "0";
+		Response<Object> response3;
 		
+		try {
+			// Obtener datos para registro
+			Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
+			ArrayList<LinkedHashMap> datos1 = (ArrayList) response1.getDatos();
+			
+			if (intRamo == PENSIONADO) {
+				moverDatosPensionado(pensionado, datos1, registroAGFDto);
+				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
+			} else {
+				moverDatosAsegurado(asegurado, datos1, registroAGFDto);
+				asegurado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
+			}
+			
+			// Datos del interesado
+			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
+			ArrayList<LinkedHashMap> datos2 = (ArrayList) response2.getDatos();
+			AGFInteresado interesado = new AGFInteresado();
+			
+			interesado.setNombre((String)datos2.get(0).get("nombre")==null?"":(String)datos2.get(0).get("nombre"));
+			interesado.setApPaterno((String)datos2.get(0).get("apPaterno")==null?"":(String)datos2.get(0).get("apPaterno"));
+			interesado.setApMaterno((String)datos2.get(0).get("apMaterno")==null?"":(String)datos2.get(0).get("apMaterno"));
+			interesado.setCurp((String)datos2.get(0).get("curp")==null?"":(String)datos2.get(0).get("curp"));
+			interesado.setCalleNumero((String)datos2.get(0).get("calleNumero")==null?"":(String)datos2.get(0).get("calleNumero"));
+			interesado.setColonia((String)datos2.get(0).get("colonia")==null?"":(String)datos2.get(0).get("colonia"));
+			interesado.setCp((String)datos2.get(0).get("cp")==null?"":(String)datos2.get(0).get("cp"));
+			interesado.setCiudad((String)datos2.get(0).get("ciudad")==null?"":(String)datos2.get(0).get("ciudad"));
+			interesado.setEntidad((Integer)datos2.get(0).get("entidad")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("entidad").toString()));
+			interesado.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
+			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"":(String)datos2.get(0).get("telefono"));
+			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
+			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
+			
+			if (intRamo == PENSIONADO) {
+				pensionado.setDatosInteresado(interesado);
+			} else {
+			    asegurado.setDatosInteresado(interesado);
+			}			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(e.getMessage());
+       	    logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
+       	    throw new IOException(ERROR_INFORMACION, e.getCause());
+       }
+		
+		// Armado de información para NSSA
 		try { 
-			 return   MensajeResponseUtil.mensajeResponseObjecto((Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication), AGREGADO_CORRECTAMENTE);
+			if (intRamo == PENSIONADO) {
+				
+				RespuestaPensionado salida = soapClientService.obtenerRespuestaPensionado(pensionado);
+				
+				if( salida != null
+					&& salida.getResolucion()!=null 
+					&& salida.getResolucion().getCertificacionPensionado() != null 
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado()!= null
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado().getFolioAGF() != null
+					&& salida.getResolucion().getCertificacionPensionado().getDatosFinado().getMontoAyuda() != null
+					&& salida.getResolucion().getCertificacionPensionado().getFechaSolicitud() != null) {
+				
+						folioAgf = salida.getResolucion().getCertificacionPensionado().getDatosFinado().getFolioAGF();
+						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacionPensionado().getDatosFinado().getMontoAyuda() );
+						fecAprobacion = salida.getResolucion().getCertificacionPensionado().getFechaSolicitud().toString();
+					
+				}
+
+			} else {
+				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
+				
+				if( salida != null
+					&& salida.getResolucion()!=null 
+					&& salida.getResolucion().getCertificacion() != null 
+					&& salida.getResolucion().getCertificacion().getDatosFinado()!= null
+					&& salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF() != null
+					&& salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() != null
+					&& salida.getResolucion().getCertificacion().getFechaSolicitud() != null ) {
+					
+						folioAgf = salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF();
+						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() );
+						fecAprobacion = salida.getResolucion().getCertificacion().getFechaSolicitud().toString();
+					
+				}
+				
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
-        	logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
-        	throw new IOException(ERROR_INFORMACION, e.getCause());
-        }
+			logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
+			//return new Response<Object>(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "52", e.getMessage());
+       }
+		
+		PagosUtil pagosUtil = new PagosUtil();
+		List<Map<String, Object>> listadatos;
+		ArrayList<String> querys = new ArrayList<>();
+		String encoded;
+		String query;
+		ActualizarMultiRequest actualizarMultiRequest = new ActualizarMultiRequest();
+		
+		if( !folioAgf.isEmpty() && importeAprobado>0.0 ) {
+			
+			estatusPago = "4";
+			query = pagosUtil.totalPagado( registroAGFDto.getIdPagoBitacora() );
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+			
+			request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+			
+			response3 = (Response<Object>) providerRestTemplate.consumirServicio(request.getDatos(), urlDominio + CONSULTA, 
+					authentication);
+			
+			listadatos = Arrays.asList(modelMapper.map(response3.getDatos(), Map[].class));
+			Double totalPagado = (Double) listadatos.get(0).get("totalPagado");
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Total Pago BD " + totalPagado, authentication);
+		
+			totalPagado += importeAprobado;
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Total Pago Actualizado " + totalPagado, authentication);
+			
+			query = pagosUtil.impOds( registroAGFDto.getIdPagoBitacora() );
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+			
+			request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+			
+			response3 = (Response<Object>) providerRestTemplate.consumirServicio(request.getDatos(), urlDominio + CONSULTA, 
+					authentication);
+			
+			listadatos = Arrays.asList(modelMapper.map(response3.getDatos(), Map[].class));
+			Double impOds = (Double) listadatos.get(0).get("impOds");
+			Integer idOds = (Integer) listadatos.get(0).get("idOds");
+			
+			if( totalPagado >= impOds ) {
+				
+				//Actualizamos la OS y el Pago de la Bitacora a Pagado
+				
+				query = pagosUtil.actODs( idOds, usuarioDto.getIdUsuario() );
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+				querys.add( encoded );
+					
+				
+				query = pagosUtil.actPB( registroAGFDto.getIdPagoBitacora(), usuarioDto.getIdUsuario(), "4", "0" );
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+				querys.add( encoded );
+				
+			}else {
+				
+				query = pagosUtil.actPB( registroAGFDto.getIdPagoBitacora(), usuarioDto.getIdUsuario(), "8", "1" );
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+				querys.add( encoded );
+				
+			}
+		}
+			
+			CrearPagosRequest datos = new CrearPagosRequest();
+			datos.setIdPagoBitacora( registroAGFDto.getIdPagoBitacora() );
+			datos.setIdMetodoPago("2");
+			datos.setImportePago( importeAprobado );
+			datos.setNumAutorizacion( folioAgf );
+			datos.setFechaPago(fecAprobacion);
+			datos.setFechaValeAGF(fecAprobacion);
+			
+			query = pagosUtil.crearDetalle(datos, usuarioDto.getIdUsuario(), estatusPago);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+			
+			encoded = DatatypeConverter.printBase64Binary(query.getBytes());
+			querys.add( encoded );
+			
+			actualizarMultiRequest.setUpdates(querys);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + actualizarMultiRequest, authentication);
+			
+			response = providerRestTemplate.consumirServicioActMult(actualizarMultiRequest, urlDominio + ACTUALIZAR_MULTIPLES, 
+					authentication);
+		
+		query = pagosUtil.detalleAGF( registroAGFDto.getIdPagoBitacora() );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response3 = (Response<Object>) providerRestTemplate.consumirServicio(request.getDatos(), urlDominio + CONSULTA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response3.getDatos(), Map[].class));
+		Integer idPagoDetalle = (Integer) listadatos.get(0).get("idPagoDetalle");
+		
+		registroAGFDto.setIdPagoDetalle(idPagoDetalle);
+		
+		response3 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication);
+		
+		if( folioAgf.isEmpty() ) {
+			response3.setError(true);
+			response3.setCodigo( HttpStatus.INTERNAL_SERVER_ERROR.value() );
+			response3.setMensaje( "52" );
+		}
+		
+		return response3;
 		
 	}
 
@@ -168,10 +393,10 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			
 			Integer intRamo = (Integer)datos1.get(0).get("ramo")==null?5:(Integer)datos1.get(0).get("ramo");
 			if (intRamo == PENSIONADO) {
-				moverDatosPensionado(pensionado, datos1);
+				moverDatosPensionado(pensionado, datos1,registroAGFDto);
 				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
 			} else {
-				moverDatosAsegurado(asegurado, datos1);
+				moverDatosAsegurado(asegurado, datos1,registroAGFDto);
 				asegurado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
 			}
 			
@@ -288,14 +513,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 	}
 	
-	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
+	private void moverDatosAsegurado(AGFAsegurado asegurado, ArrayList<LinkedHashMap> datos1, RegistroAGFDto registroAGFDto) throws DatatypeConfigurationException, ParseException {
 		asegurado.setCadena("RS0");
 		asegurado.setTransaccion("1");
 		asegurado.setTipoProceso("01");
-		asegurado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
-		asegurado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
-		asegurado.setRamo((Integer)datos1.get(0).get("ramo")==null?new BigInteger("5"):new BigInteger(datos1.get(0).get("ramo").toString()));
-		asegurado.setFechaDefuncion((String)datos1.get(0).get("fechaDefuncion")==null?null:getXMLGregorianCalendar((String)datos1.get(0).get("fechaDefuncion")));
+		asegurado.setNss( registroAGFDto.getCveNSS() );
+		asegurado.setCurp( registroAGFDto.getCveCURPBeneficiario());
+		asegurado.setRamo( new BigInteger(registroAGFDto.getIdRamo().toString()) );
+		asegurado.setFechaDefuncion( getXMLGregorianCalendar(registroAGFDto.getFecDefuncion()) );
 		asegurado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
 		asegurado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 		
@@ -311,28 +536,28 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.getDatosFinado().setNacionalidad(false);
 		
 		asegurado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
-		asegurado.getDocumentacionProbatoria().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
-		asegurado.getDocumentacionProbatoria().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
-		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
-		asegurado.getDocumentacionProbatoria().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
-		asegurado.getDocumentacionProbatoria().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("idOficial").toString()));
-		asegurado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+		asegurado.getDocumentacionProbatoria().setCurp( registroAGFDto.getCasillaCurp() );
+		asegurado.getDocumentacionProbatoria().setActaDefuncion( registroAGFDto.getCasillaActDef() );
+		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF( registroAGFDto.getCasillaCogf() );
+		asegurado.getDocumentacionProbatoria().setDocumentoConNSS( registroAGFDto.getCasillaNssi() );
+		asegurado.getDocumentacionProbatoria().setIdOficial( new BigInteger(registroAGFDto.getIdTipoId().toString()) );
+		asegurado.getDocumentacionProbatoria().setNumIdOficial( registroAGFDto.getNumIdentificacion());
 	}
 	
-	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1) throws DatatypeConfigurationException, ParseException {
+	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1, RegistroAGFDto registroAGFDto) throws DatatypeConfigurationException, ParseException {
 		pensionado.setCadena("RS0");
 		pensionado.setTransaccion("1");
 		pensionado.setTipoProceso("01");
-		pensionado.setNss((String)datos1.get(0).get("nss")==null?"":(String)datos1.get(0).get("nss"));
-		pensionado.setCurp((String)datos1.get(0).get("curp")==null?"":(String)datos1.get(0).get("curp"));
-		pensionado.setRamo(new BigInteger(PENSIONADO.toString()));
-		pensionado.setFechaDefuncion((String)datos1.get(0).get("fechaDefuncion")==null?null:getXMLGregorianCalendar((String)datos1.get(0).get("fechaDefuncion")));
+		pensionado.setNss( registroAGFDto.getCveNSS() );
+		pensionado.setCurp( registroAGFDto.getCveCURPBeneficiario());
+		pensionado.setRamo( new BigInteger(registroAGFDto.getIdRamo().toString()) );
+		pensionado.setFechaDefuncion( getXMLGregorianCalendar(registroAGFDto.getFecDefuncion()) );
 		pensionado.setDelegacion((String)datos1.get(0).get("delegacion")==null?"":(String)datos1.get(0).get("delegacion"));
 		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 
 		pensionado.setDatosFinado(new AGFPensionadoFinado());
-		pensionado.getDatosFinado().setSelBeneficiario((String)datos1.get(0).get("nomBeneficiario")==null?"":(String)datos1.get(0).get("nomBeneficiario")); // Falta el beneficiario
-		pensionado.getDatosFinado().setCurp((String)datos1.get(0).get("curpFinado")==null?"":(String)datos1.get(0).get("curpFinado"));
+		pensionado.getDatosFinado().setSelBeneficiario( registroAGFDto.getNombreBeneficiario() ); 
+		pensionado.getDatosFinado().setCurp(registroAGFDto.getCveCURP());
 		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
 		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));
 		pensionado.getDatosFinado().setColonia((String)datos1.get(0).get("colonia")==null?"":(String)datos1.get(0).get("colonia"));
@@ -344,12 +569,12 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.getDatosFinado().setNacionalidad(false);
 		
 		pensionado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
-		pensionado.getDocumentacionProbatoria().setCurp((Boolean)datos1.get(0).get("chkCurp")==null?false:(Boolean)datos1.get(0).get("chkCurp"));
-		pensionado.getDocumentacionProbatoria().setActaDefuncion((Boolean)datos1.get(0).get("chkActaDefuncion")==null?false:(Boolean)datos1.get(0).get("chkActaDefuncion"));
-		pensionado.getDocumentacionProbatoria().setCuentaOriginalGF((Boolean)datos1.get(0).get("chkCuentaOriginalGF")==null?false:(Boolean)datos1.get(0).get("chkCuentaOriginalGF"));
-		pensionado.getDocumentacionProbatoria().setDocumentoConNSS((Boolean)datos1.get(0).get("chkNSSI")==null?false:(Boolean)datos1.get(0).get("chkNSSI"));
-		pensionado.getDocumentacionProbatoria().setIdOficial((Integer)datos1.get(0).get("idOficial")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("idOficial").toString()));
-		pensionado.getDocumentacionProbatoria().setNumIdOficial((String)datos1.get(0).get("numIdOficial")==null?"":(String)datos1.get(0).get("numIdOficial"));
+		pensionado.getDocumentacionProbatoria().setCurp( registroAGFDto.getCasillaCurp() );
+		pensionado.getDocumentacionProbatoria().setActaDefuncion( registroAGFDto.getCasillaActDef() );
+		pensionado.getDocumentacionProbatoria().setCuentaOriginalGF( registroAGFDto.getCasillaCogf() );
+		pensionado.getDocumentacionProbatoria().setDocumentoConNSS( registroAGFDto.getCasillaNssi() );
+		pensionado.getDocumentacionProbatoria().setIdOficial( new BigInteger(registroAGFDto.getIdTipoId().toString()) );
+		pensionado.getDocumentacionProbatoria().setNumIdOficial( registroAGFDto.getNumIdentificacion());
 	}
 	
 	private static XMLGregorianCalendar getXMLGregorianCalendar(String fecha) throws ParseException, DatatypeConfigurationException {
