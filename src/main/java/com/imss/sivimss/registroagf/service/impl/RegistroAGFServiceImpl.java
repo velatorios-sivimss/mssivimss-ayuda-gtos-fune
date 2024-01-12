@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import javax.xml.bind.DatatypeConverter;
@@ -20,6 +21,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -192,7 +194,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			interesado.setEntidad((Integer)datos2.get(0).get("entidad")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("entidad").toString()));
 			interesado.setDelegMunicipio((String)datos2.get(0).get("delegMunicipio")==null?"":(String)datos2.get(0).get("delegMunicipio"));
 			interesado.setLada(new BigInteger("111"));
-			interesado.setTelefono((String)datos2.get(0).get("telefono")==null?"1111111111":(String)datos2.get(0).get("telefono"));
+			interesado.setTelefono(contienePalabraNull((String)datos2.get(0).get("telefono"))?"1111111111":(String)datos2.get(0).get("telefono"));
 			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
 			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
 			
@@ -223,7 +225,13 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
-				log.info(" RespuestaPensionado salida getResolucion", salida.getResolucion().getCertificacionPensionado());
+				
+				if (Objects.nonNull(salida)) {
+					log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
+					log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
+					log.info(" RespuestaAsegurado salida getExito", salida.getExito());
+					log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
+				}
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -245,17 +253,20 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + asegurado, authentication);
 			
-
+				
 				log.info(" RespuestaAsegurado salida asegurado",asegurado);
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
-				log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
-				log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
-				log.info(" RespuestaAsegurado salida getExito", salida.getExito());
-				log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
+				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
-				log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion().getCertificacion());
 
+				if (Objects.nonNull(salida)) {
+					log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
+					log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
+					log.info(" RespuestaAsegurado salida getExito", salida.getExito());
+					log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
+				}
+				
 				if( salida != null
 					&& salida.getResolucion()!=null 
 					&& salida.getResolucion().getCertificacion() != null 
@@ -263,7 +274,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 					&& salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF() != null
 					&& salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() != null
 					&& salida.getResolucion().getCertificacion().getFechaSolicitud() != null ) {
-					
+				
 						folioAgf = salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF();
 						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() );
 						fecAprobacion = salida.getResolucion().getCertificacion().getFechaSolicitud().toString();
@@ -416,6 +427,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 	}
 
+	public boolean contienePalabraNull(String texto) {
+        return texto != null && texto.toLowerCase().contains("null");
+    }
 	@Override
 	public Response<Object> registroNSSA(DatosRequest request, Authentication authentication) throws IOException {
 		Gson gson = new Gson();
@@ -584,7 +598,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
 		asegurado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
 		asegurado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
-		asegurado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"1111111111":(String)datos1.get(0).get("telefono"));
+		asegurado.getDatosFinado().setTelefono(contienePalabraNull((String)datos1.get(0).get("telefono"))?"1111111111":(String)datos1.get(0).get("telefono"));
 		asegurado.getDatosFinado().setNacionalidad(false);
 		
 		asegurado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
@@ -617,7 +631,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.getDatosFinado().setCiudad((String)datos1.get(0).get("ciudad")==null?"":(String)datos1.get(0).get("ciudad"));
 		pensionado.getDatosFinado().setEntidad((String)datos1.get(0).get("entidad")==null?"":(String)datos1.get(0).get("entidad"));
 		pensionado.getDatosFinado().setDelegMunicipio((String)datos1.get(0).get("delegMunicipio")==null?"":(String)datos1.get(0).get("delegMunicipio"));
-		pensionado.getDatosFinado().setTelefono((String)datos1.get(0).get("telefono")==null?"1111111111":(String)datos1.get(0).get("telefono"));
+		pensionado.getDatosFinado().setTelefono(contienePalabraNull((String)datos1.get(0).get("telefono"))?"1111111111":(String)datos1.get(0).get("telefono"));
 		pensionado.getDatosFinado().setNacionalidad(false);
 		
 		pensionado.setDocumentacionProbatoria(new AGFDocumentacionProbatoria());
@@ -635,6 +649,8 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		 GregorianCalendar calender = new GregorianCalendar();
 		 calender.setTime(stringToJavaDate(fecha));
 		 xmlCalender = DatatypeFactory.newInstance().newXMLGregorianCalendar(calender);
+		 xmlCalender.setTimezone( DatatypeConstants.FIELD_UNDEFINED );
+		
 		 log.info("XMLGregorianCalendar {}",xmlCalender);
 		 return xmlCalender;
 	}
