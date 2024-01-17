@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import lombok.ToString;
+
 
 /**
  * <p>Clase Java para AGF_Asegurado complex type.
@@ -58,6 +60,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "datosInteresado",
     "documentacionProbatoria"
 })
+@ToString
 public class AGFAsegurado {
 
     @XmlElement(required = true)
