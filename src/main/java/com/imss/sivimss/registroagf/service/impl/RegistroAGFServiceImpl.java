@@ -163,8 +163,17 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		try {
 			// Obtener datos para registro
-			Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
-			ArrayList<LinkedHashMap> datos1 = (ArrayList) response1.getDatos();
+			ArrayList<LinkedHashMap> datos1 = null;
+			try {
+				Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
+				datos1 = (ArrayList) response1.getDatos();
+				datos1.get(0);
+			} catch (Exception e) {
+				log.error("datos1 es vacio");
+				e.printStackTrace();
+				throw new IOException(ERROR_INFORMACION, e.getCause());
+			}
+
 			log.info("Obtener datos para registro {}",registroAGFDto.getCveCURP());
 			if (intRamo == PENSIONADO) {
 				log.info("moverDatosPensionado ");
