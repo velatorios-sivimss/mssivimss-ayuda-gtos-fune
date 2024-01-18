@@ -145,7 +145,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		RegistroAGFDto registroAGFDto = gson.fromJson(datosJson, RegistroAGFDto.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		if (registroAGFDto.getIdFinado() == null || registroAGFDto.getIdPagoBitacora() == null) {
+		if (registroAGFDto.getFecDefuncion() == null || registroAGFDto.getIdFinado() == null || registroAGFDto.getIdPagoBitacora() == null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
 		log.info("registroAGFDto {}",registroAGFDto.toString());
