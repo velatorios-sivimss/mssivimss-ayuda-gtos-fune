@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 
 import javax.xml.bind.DatatypeConverter;
@@ -54,7 +52,6 @@ import com.imss.sivimss.registroagf.exception.BadRequestException;
 import com.imss.sivimss.registroagf.model.request.UsuarioDto;
 import com.imss.sivimss.registroagf.model.response.AGFResponseDto;
 import com.imss.sivimss.registroagf.model.response.AgfSalida;
-import com.imss.sivimss.registroagf.model.response.BeneficiariosResponse;
 import com.imss.sivimss.registroagf.service.nssa.*;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.model.request.BeneficiariosRequest;
@@ -98,6 +95,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	@Autowired
 	private ModelMapper modelMapper;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> detalle(DatosRequest request, Authentication authentication) throws IOException {
          AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
@@ -111,6 +109,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
         }  
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> listaRamos(DatosRequest request, Authentication authentication) throws IOException {
 		AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
@@ -124,6 +123,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
         }
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> listaTipoId(DatosRequest request, Authentication authentication) throws IOException {
         AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
@@ -140,16 +140,26 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> guardarAGF(DatosRequest request, Authentication authentication) throws IOException {
+		
 		Gson gson = new Gson();
-		log.info("guardarAGF");
+		String impresion;
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","guardar AGF ", authentication);
+		
 		String datosJson = String.valueOf(request.getDatos().get(AppConstantes.DATOS));
 		RegistroAGFDto registroAGFDto = gson.fromJson(datosJson, RegistroAGFDto.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		
+		impresion = gson.toJson(registroAGFDto);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Datos Entrada " + impresion, authentication);
+		
 		if (registroAGFDto.getFecDefuncion() == null || registroAGFDto.getIdFinado() == null || registroAGFDto.getIdPagoBitacora() == null) {
 			throw new BadRequestException(HttpStatus.BAD_REQUEST, "Informacion incompleta");
 		}
-		log.info("registroAGFDto {}",registroAGFDto.toString());
-		log.info("registroAGFDto {}",registroAGFDto.getCveCURP());
+		
 		AyudaGastosFunerarios ayudaGF = new AyudaGastosFunerarios();
 		registroAGFDto.setIdUsuarioAlta(usuarioDto.getIdUsuario());
 		Integer intRamo = registroAGFDto.getIdRamo();
@@ -167,31 +177,62 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			try {
 				Response<?> response1 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosAsegurado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 				datos1 = (ArrayList) response1.getDatos();
-				datos1.get(0);
 			} catch (Exception e) {
 				log.error("datos1 es vacio");
 				e.printStackTrace();
 				throw new IOException(ERROR_INFORMACION, e.getCause());
 			}
 
-			log.info("Obtener datos para registro {}",registroAGFDto.getCveCURP());
+			
+			if( 
+				( datos1 == null ) 
+				|| ( datos1.size() < 1 ) 
+			) {
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos del Asegurado Vacios ", authentication);
+				response3 = new Response<>();
+				response3.setError(true);
+				response3.setCodigo( HttpStatus.INTERNAL_SERVER_ERROR.value() );
+				response3.setMensaje( "52" );
+				return response3;
+			}
+			
 			if (intRamo == PENSIONADO) {
-				log.info("moverDatosPensionado ");
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","moverDatosPensionado ", authentication);
+				
 				moverDatosPensionado(pensionado, datos1, registroAGFDto);
 				pensionado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
-				log.info("pensionado.getFechaDefuncion {}",pensionado.getFechaDefuncion().toString());
+				
+				impresion = gson.toJson(pensionado);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos Pensionado " + impresion, authentication);
+				
 			} else {
-				log.info("moverDatosAsegurado ");
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","moverDatosAsegurado ", authentication);
+				
 				moverDatosAsegurado(asegurado, datos1, registroAGFDto);
 				asegurado.setUsuarioOperador(new BigInteger(usuarioDto.getIdUsuario().toString()));
-				log.info("pensionado.getFechaDefuncion {}",asegurado.getFechaDefuncion().toString());
+				
+				impresion = gson.toJson(asegurado);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos Asegurado " + impresion, authentication);
+
 			}
 			
 			// Datos del interesado
 			Response<?> response2 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.datosInteresado(request, registroAGFDto.getIdFinado()).getDatos(), urlDominio + CONSULTA, authentication);
 			ArrayList<LinkedHashMap> datos2 = (ArrayList) response2.getDatos();
 			AGFInteresado interesado = new AGFInteresado();
-			log.info(" Datos del interesado ");
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Datos del interesado ", authentication);
+
 			interesado.setNombre((String)datos2.get(0).get("nombre")==null?"":(String)datos2.get(0).get("nombre"));
 			interesado.setApPaterno((String)datos2.get(0).get("apPaterno")==null?"":(String)datos2.get(0).get("apPaterno"));
 			interesado.setApMaterno((String)datos2.get(0).get("apMaterno")==null?"":(String)datos2.get(0).get("apMaterno"));
@@ -207,12 +248,20 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			interesado.setParentesco((Integer)datos2.get(0).get("parentesco")==null?new BigInteger("0"):new BigInteger(datos2.get(0).get("parentesco").toString()));
 			interesado.setFechaSolicitud((String)datos2.get(0).get("fechaSolicitud")==null?null:getXMLGregorianCalendar((String)datos2.get(0).get("fechaSolicitud")));
 			
+			impresion = gson.toJson(interesado);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Datos Interesado " + impresion, authentication);
+			
+			
 			if (intRamo == PENSIONADO) {
 				pensionado.setDatosInteresado(interesado);
-				log.info(" Datos del interesado pensionado", pensionado.getDatosInteresado().getCurp());
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Se asigno el interesado a Pensionado ", authentication);
 			} else {
 			    asegurado.setDatosInteresado(interesado);
-			    log.info(" Datos del interesado asegurado", asegurado.getDatosInteresado().getCurp());
+			    logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Se asigno el interesado a Asegurado ", authentication);
 			}			
 			
 		} catch (Exception e) {
@@ -224,23 +273,26 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		// Armado de información para NSSA
 		try { 
-			log.info(" Armado de información para NSSA");
+
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Armado de información para NSSA ", authentication);
+			
 			if (intRamo == PENSIONADO) {
-				log.info(" intRamo PENSIONADO");
+				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
-						this.getClass().getPackage().toString(), "",CONSULTA +" " + pensionado, authentication);
+						this.getClass().getPackage().toString(), "","intRamo PENSIONADO ", authentication);
+				
+				impresion = gson.toJson(pensionado);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos Pensionado " + impresion, authentication);
 				
 				RespuestaPensionado salida = soapClientService.obtenerRespuestaPensionado(pensionado);
 				
-				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
-						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
+				impresion = gson.toJson(salida);
 				
-				if (Objects.nonNull(salida)) {
-					log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
-					log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
-					log.info(" RespuestaAsegurado salida getExito", salida.getExito());
-					log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
-				}
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos Salida " + impresion, authentication);
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -253,28 +305,30 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 						folioAgf = salida.getResolucion().getCertificacionPensionado().getDatosFinado().getFolioAGF();
 						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacionPensionado().getDatosFinado().getMontoAyuda() );
 						fecAprobacion = salida.getResolucion().getCertificacionPensionado().getFechaSolicitud().toString();
-						log.info(" RespuestaPensionado salida fecAprobacion", fecAprobacion);
-						log.info(" RespuestaPensionado salida folioAgf", folioAgf);
-					
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Folio Agf: " + folioAgf, authentication);
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Importe Aprobado: " + importeAprobado, authentication);
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Fecha de Aprobacion: " + fecAprobacion, authentication);
 				}
 				
 			} else {
-				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
-						this.getClass().getPackage().toString(), "",CONSULTA +" " + asegurado, authentication);
-			
+
+				impresion = gson.toJson(asegurado);
 				
-				log.info(" RespuestaAsegurado salida asegurado",asegurado);
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Datos Asegurado: " + impresion, authentication);
+				
 				RespuestaAsegurado salida =  soapClientService.obtenerRespuestaAsegurado(asegurado);
 				
+				impresion = gson.toJson(salida);
+				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
-						this.getClass().getPackage().toString(), "",CONSULTA +" " + salida, authentication);
-
-				if (Objects.nonNull(salida)) {
-					log.info(" RespuestaAsegurado salida getClaveError", salida.getClaveError());
-					log.info(" RespuestaAsegurado salida getDescripcionError", salida.getDescripcionError());
-					log.info(" RespuestaAsegurado salida getExito", salida.getExito());
-					log.info(" RespuestaAsegurado salida getResolucion", salida.getResolucion());
-				}
+						this.getClass().getPackage().toString(), "","Datos Salida " + impresion, authentication);
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -287,16 +341,24 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 						folioAgf = salida.getResolucion().getCertificacion().getDatosFinado().getFolioAGF();
 						importeAprobado = Double.parseDouble( salida.getResolucion().getCertificacion().getDatosFinado().getMontoAyuda() );
 						fecAprobacion = salida.getResolucion().getCertificacion().getFechaSolicitud().toString();
-						log.info(" RespuestaAsegurado salida fecAprobacion", fecAprobacion);
-						log.info(" RespuestaAsegurado salida folioAgf", folioAgf);
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Folio Agf: " + folioAgf, authentication);
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Importe Aprobado: " + importeAprobado, authentication);
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Fecha de Aprobacion: " + fecAprobacion, authentication);
 
 				}
 				
 			}
 		} catch (Exception e) {
+			
 			log.error(e.getMessage());
 			logUtil.crearArchivoLog(Level.SEVERE.toString(), this.getClass().getSimpleName(), this.getClass().getPackage().toString(), e.getMessage(), CREAR, authentication);
-			//return new Response<Object>(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "52", e.getMessage());
+
        }
 		
 		PagosUtil pagosUtil = new PagosUtil();
@@ -305,9 +367,12 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		String encoded;
 		String query;
 		ActualizarMultiRequest actualizarMultiRequest = new ActualizarMultiRequest();
-		log.info("PagosUtil");
+		
 		if( !folioAgf.isEmpty() && importeAprobado>0.0 ) {
-			log.info("!folioAgf Empty");
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","!folioAgf.isEmpty() && importeAprobado>0.0 ", authentication);
+			
 			estatusPago = "4";
 			query = pagosUtil.totalPagado( registroAGFDto.getIdPagoBitacora() );
 			
@@ -343,37 +408,46 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			listadatos = Arrays.asList(modelMapper.map(response3.getDatos(), Map[].class));
 			Double impOds = (Double) listadatos.get(0).get("impOds");
 			Integer idOds = (Integer) listadatos.get(0).get("idOds");
-			log.info("PagosUtil impOds {}",impOds);
-			log.info("PagosUtil idOds {}",idOds);
 
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Importe Ods: " + impOds, authentication);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","id Ods: " + idOds, authentication);
+			
 			if( totalPagado >= impOds ) {
 				
 				//Actualizamos la OS y el Pago de la Bitacora a Pagado
-				log.info("Pago de la Bitacora a Pagado {}");
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Actualizamos Pago de la Bitacora a Pagado", authentication);
+				
 				
 				query = pagosUtil.actODs( idOds, usuarioDto.getIdUsuario() );
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
-				log.info("query actODs {}",query);
+				
 				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
 				querys.add( encoded );
 					
-				
 				query = pagosUtil.actPB( registroAGFDto.getIdPagoBitacora(), usuarioDto.getIdUsuario(), "4", "0" );
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
-				log.info("query actPB {}",query);
+				
 				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
 				querys.add( encoded );
 				
 				
 			}else {
-				log.info("folioAgf Empty");
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Actualizamos Pago de la Bitacora a Pendiente", authentication);
+				
 				query = pagosUtil.actPB( registroAGFDto.getIdPagoBitacora(), usuarioDto.getIdUsuario(), "8", "1" );
 				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
-				log.info("else query actPB {}",query);
+				
 				encoded = DatatypeConverter.printBase64Binary(query.getBytes());
 				querys.add( encoded );
 				
@@ -388,8 +462,11 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			datos.setFechaPago(fecAprobacion);
 			datos.setFechaValeAGF(fecAprobacion);
 			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Se crea el detalle del Pago", authentication);
+			
 			query = pagosUtil.crearDetalle(datos, usuarioDto.getIdUsuario(), estatusPago);
-			log.info("CrearPagosRequest CrearPagosReques {}",query);
+			
 			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
 			
@@ -406,7 +483,8 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		query = pagosUtil.detalleAGF( registroAGFDto.getIdPagoBitacora() );
 		
-		log.info("CrearPagosRequest CrearPagosReques {}",query);
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Se guarda el registro en la tabla de AGF", authentication);
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
@@ -422,11 +500,12 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		registroAGFDto.setIdPagoDetalle(idPagoDetalle);
 		
 		response3 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication);
-		log.info("CrearPagosRequest registroAGFDto {}",response3.getDatos());
-
-		log.info("folioAgf",folioAgf);
+		
 		if( folioAgf.isEmpty() ) {
-			log.info("folioAgf isEmpty {}",folioAgf);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Folio AGF Vacio", authentication);
+			
 			response3.setError(true);
 			response3.setCodigo( HttpStatus.INTERNAL_SERVER_ERROR.value() );
 			response3.setMensaje( "52" );
@@ -670,38 +749,4 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	    return date;  
 	}
 	
-	private  Response<Object> obtenerBeneficiarios(RegistroAGFDto registroAGFDto ) {
-		List<BeneficiariosResponse> beneficiariosRequest = new ArrayList<>();
-		if ("46127209461".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosResponse("DANIEL TINAJERO TRISTAN","TITD600101HTSNRN09") );
-			beneficiariosRequest.add(new BeneficiariosResponse("MA. GUADALUPE MORENO CASTILLO", "ROBG900321MTSDRD01") );
-			beneficiariosRequest.add(new BeneficiariosResponse("SEBASTIAN GOMEZ RAMIREZ", "MOCG481211MTSRSD25") );
-			
-			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
-			
-		} else if ("46127209464".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosResponse("LILIA ISABEL PEREZ RODRIGUEZ", "AACM651123MTSLLR06") );
-			beneficiariosRequest.add(new BeneficiariosResponse("ZULEIMA GABRIELA ORDOÑEZ ALANIS", "PAVM910427HTLRZR04") );
-			
-			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
-			
-		} else if ("64866806660".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosResponse("JIMENA VALENCIA ELIAS", "GORS990626HMCMMB09") );
-			beneficiariosRequest.add(new BeneficiariosResponse("JUAN DIEGO VALENCIA GARCIA", "VAGJ110218HQTLRNA1") );
-			
-			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
-			
-		}  else if ("24715415865".equals(registroAGFDto.getCveNSS())) {
-			beneficiariosRequest.add(new BeneficiariosResponse("VIRGINIA NIEVES IBARRA", "NIIV940411MQTVBR08") );
-			beneficiariosRequest.add(new BeneficiariosResponse("ADRIANA IBARRA MARTINEZ", "LOMA900209MQTPRD00"));
-			beneficiariosRequest.add(new BeneficiariosResponse("JOSE IBARRA AGUILAR", "CLARK5HVZNYD06"));
-			
-			response= new Response<>(false, 200, EXITO, beneficiariosRequest);
-			
-		}  else {
-			response= new Response<>(false, 200, EXITO,beneficiariosRequest);
-		}
-		
-		return response;
-	}
 }
