@@ -6,6 +6,9 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.imss.sivimss.registroagf.model.request.RegistroAGFDto;
 import com.imss.sivimss.registroagf.util.AppConstantes;
 import com.imss.sivimss.registroagf.util.DatosRequest;
@@ -93,30 +96,36 @@ public class AyudaGastosFunerarios {
 	}
 	
 	public DatosRequest datosAsegurado(DatosRequest request, Integer idFinado) throws UnsupportedEncodingException {
+		
+		Logger log = LoggerFactory.getLogger(AyudaGastosFunerarios.class);
+		
 		StringBuilder query = new StringBuilder("SELECT \r\n"
-				+ "per.CVE_NSS AS nss, \r\n"
-				+ "per.CVE_CURP AS curp, \r\n"
-				+ "CONVERT(vel.ID_DELEGACION,CHAR) AS delegacion, \r\n"
-				+ "fin.ID_VELATORIO AS velatorioOperador, \r\n"
-				+ "per.NUM_SEXO AS sexo, \r\n"
-				+ "per.CVE_CURP AS curpFinado, \r\n"
-				+ "CONCAT(dom.REF_CALLE,' ',dom.NUM_EXTERIOR) AS calleNumero, \r\n"
-				+ "dom.REF_COLONIA AS colonia, \r\n"
-				+ "CONVERT(dom.REF_CP,CHAR) AS cp, \r\n"
-				+ "dom.REF_MUNICIPIO AS ciudad, \r\n"
-				+ "dom.REF_ESTADO AS entidad, \r\n"
-				+ "dom.REF_MUNICIPIO AS delegMunicipio, \r\n"
-				+ "per.REF_TELEFONO AS telefono\r\n"
+				+ "PER.CVE_NSS AS nss, \r\n"
+				+ "PER.CVE_CURP AS curp, \r\n"
+				+ "CONVERT(VEL.ID_DELEGACION,CHAR) AS delegacion, \r\n"
+				+ "FIN.ID_VELATORIO AS velatorioOperador, \r\n"
+				+ "PER.NUM_SEXO AS sexo, \r\n"
+				+ "PER.CVE_CURP AS curpFinado, \r\n"
+				+ "CONCAT(DOM.REF_CALLE,' ',DOM.NUM_EXTERIOR) AS calleNumero, \r\n"
+				+ "DOM.REF_COLONIA AS colonia, \r\n"
+				+ "CONVERT(DOM.REF_CP,CHAR) AS cp, \r\n"
+				+ "DOM.REF_MUNICIPIO AS ciudad, \r\n"
+				+ "DOM.REF_ESTADO AS entidad, \r\n"
+				+ "DOM.REF_MUNICIPIO AS delegMunicipio, \r\n"
+				+ "PER.REF_TELEFONO AS telefono\r\n"
 				+ "FROM \r\n"
-				+ "SVC_FINADO fin\r\n"
-				+ "JOIN SVC_VELATORIO vel ON vel.ID_VELATORIO = fin.ID_VELATORIO \r\n"
-				+ "JOIN SVC_PERSONA per ON per.ID_PERSONA = fin.ID_PERSONA \r\n"
-				+ "LEFT JOIN SVT_DOMICILIO dom ON dom.ID_DOMICILIO = fin.ID_DOMICILIO \r\n"
-				+ "WHERE fin.ID_FINADO = ");
+				+ "SVC_FINADO FIN\r\n"
+				+ "INNER JOIN SVC_ORDEN_SERVICIO ODS ON ODS.ID_ORDEN_SERVICIO = FIN.ID_ORDEN_SERVICIO\r\n"
+				+ "INNER JOIN SVC_VELATORIO VEL ON VEL.ID_VELATORIO = ODS.ID_VELATORIO \r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = FIN.ID_PERSONA \r\n"
+				+ "LEFT JOIN SVT_DOMICILIO DOM ON DOM.ID_DOMICILIO = FIN.ID_DOMICILIO \r\n"
+				+ "WHERE FIN.ID_FINADO = ");
 		query.append(idFinado);
 		query.append(" \r\n"
-				+ "ORDER BY fin.ID_FINADO \r\n"
-				+ "DESC LIMIT 1");
+				+ "ORDER BY FIN.ID_FINADO DESC \r\n"
+				+ "LIMIT 1");
+		
+		log.info("Datos Asegurado: " + query.toString());
 		
 		String encoded = DatatypeConverter.printBase64Binary(query.toString().getBytes("UTF-8"));
 		request.getDatos().put(AppConstantes.QUERY, encoded);
