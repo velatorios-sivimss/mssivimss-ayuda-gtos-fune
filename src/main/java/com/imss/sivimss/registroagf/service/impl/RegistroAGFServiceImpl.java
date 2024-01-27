@@ -170,6 +170,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		Double importeAprobado = 0.0;
 		String estatusPago = "0";
 		Response<Object> response3;
+		String salidaError = "";
 		
 		try {
 			// Obtener datos para registro
@@ -294,6 +295,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "","Datos Salida " + impresion, authentication);
 				
+				if( salida!=null
+					&& salida.getDescripcionError() != null) {
+					salidaError = salida.getDescripcionError();
+					
+					logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+							this.getClass().getPackage().toString(), "","Error en el servicio: " + salidaError, authentication);
+				}
+				
 				if( salida != null
 					&& salida.getResolucion()!=null 
 					&& salida.getResolucion().getCertificacionPensionado() != null 
@@ -329,6 +338,14 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				
 				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 						this.getClass().getPackage().toString(), "","Datos Salida " + impresion, authentication);
+				
+				if( salida!=null
+						&& salida.getDescripcionError() != null) {
+						salidaError = salida.getDescripcionError();
+						
+						logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+								this.getClass().getPackage().toString(), "","Error en el servicio: " + salidaError, authentication);
+					}
 				
 				if( salida != null
 					&& salida.getResolucion()!=null 
@@ -509,6 +526,11 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			response3.setError(true);
 			response3.setCodigo( HttpStatus.INTERNAL_SERVER_ERROR.value() );
 			response3.setMensaje( "52" );
+			
+			if(salidaError != null
+				&& !salidaError.isEmpty() ) {
+				response3.setDatos( salidaError );
+			}
 		}
 		
 		return response3;

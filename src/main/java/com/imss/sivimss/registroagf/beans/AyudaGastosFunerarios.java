@@ -103,7 +103,7 @@ public class AyudaGastosFunerarios {
 				+ "PER.CVE_NSS AS nss, \r\n"
 				+ "PER.CVE_CURP AS curp, \r\n"
 				+ "CONVERT(VEL.ID_DELEGACION,CHAR) AS delegacion, \r\n"
-				+ "FIN.ID_VELATORIO AS velatorioOperador, \r\n"
+				+ "VEL.ID_VELATORIO AS velatorioOperador, \r\n"
 				+ "PER.NUM_SEXO AS sexo, \r\n"
 				+ "PER.CVE_CURP AS curpFinado, \r\n"
 				+ "CONCAT(DOM.REF_CALLE,' ',DOM.NUM_EXTERIOR) AS calleNumero, \r\n"
