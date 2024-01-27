@@ -23,6 +23,7 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,7 +184,6 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				e.printStackTrace();
 				throw new IOException(ERROR_INFORMACION, e.getCause());
 			}
-
 			
 			if( 
 				( datos1 == null ) 
@@ -253,7 +253,6 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 			
 			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 					this.getClass().getPackage().toString(), "","Datos Interesado " + impresion, authentication);
-			
 			
 			if (intRamo == PENSIONADO) {
 				pensionado.setDatosInteresado(interesado);
@@ -717,7 +716,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		asegurado.getDocumentacionProbatoria().setCuentaOriginalGF( registroAGFDto.getCasillaCogf() );
 		asegurado.getDocumentacionProbatoria().setDocumentoConNSS( registroAGFDto.getCasillaNssi() );
 		asegurado.getDocumentacionProbatoria().setIdOficial( new BigInteger(registroAGFDto.getIdTipoId().toString()) );
-		asegurado.getDocumentacionProbatoria().setNumIdOficial( registroAGFDto.getNumIdentificacion());
+		
+		String formatted = StringUtils.leftPad(registroAGFDto.getNumIdentificacion(), 20, '0');
+		asegurado.getDocumentacionProbatoria().setNumIdOficial( formatted );
 	}
 	
 	private void moverDatosPensionado(AGFPensionado pensionado, ArrayList<LinkedHashMap> datos1, RegistroAGFDto registroAGFDto) throws DatatypeConfigurationException, ParseException {
@@ -750,7 +751,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.getDocumentacionProbatoria().setCuentaOriginalGF( registroAGFDto.getCasillaCogf() );
 		pensionado.getDocumentacionProbatoria().setDocumentoConNSS( registroAGFDto.getCasillaNssi() );
 		pensionado.getDocumentacionProbatoria().setIdOficial( new BigInteger(registroAGFDto.getIdTipoId().toString()) );
-		pensionado.getDocumentacionProbatoria().setNumIdOficial( registroAGFDto.getNumIdentificacion());
+		
+		String formatted = StringUtils.leftPad(registroAGFDto.getNumIdentificacion(), 20, '0');
+		pensionado.getDocumentacionProbatoria().setNumIdOficial( formatted );
 		
 	}
 	
