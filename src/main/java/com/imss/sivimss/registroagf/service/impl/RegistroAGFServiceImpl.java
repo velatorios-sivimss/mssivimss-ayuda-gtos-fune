@@ -537,8 +537,10 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	}
 
 	public boolean contienePalabraNull(String texto) {
-        return texto != null && texto.toLowerCase().contains("null");
+		boolean tieneNulo = (texto == null) || (texto != null && texto.toLowerCase().contains("null"));
+        return tieneNulo;
     }
+	
 	@Override
 	public Response<Object> registroNSSA(DatosRequest request, Authentication authentication) throws IOException {
 		Gson gson = new Gson();
