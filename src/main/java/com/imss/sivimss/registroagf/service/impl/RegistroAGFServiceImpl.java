@@ -649,6 +649,10 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		
 		try {
 			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Datos Entrada Beneficiarios: " + xml.toString(), authentication);
+			
+			
 			AutorizaGastosFunerariosService serviceLocatr = new AutorizaGastosFunerariosServiceLocator();
 			AutorizaGastosFunerarios serviceClient = serviceLocatr.getAutorizaGF();
 			responseString = serviceClient.consultaGastosFunerarios(xml.toString());
@@ -656,6 +660,9 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				log.info(responseString);
 				return new Response<>(false, 200, ERROR_INFORMACION, null);				
 			}
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "","Datos Salida Beneficiarios: " + responseString, authentication);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -676,6 +683,11 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 				StringReader reader = new StringReader(responseString);
 				agfSalida = (AgfSalida) unmarshaller.unmarshal( reader );
 				response= new Response<>(false, 200, EXITO, agfSalida.getComponenteType());
+				
+				String impresion = gson.toJson(agfSalida);
+				
+				logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+						this.getClass().getPackage().toString(), "","Objeto Salida " + impresion, authentication);
 				
 			} catch (JAXBException e) {
 				log.info(e.getMessage());
@@ -735,7 +747,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		pensionado.setVelatorioOperador((Integer)datos1.get(0).get("velatorioOperador")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("velatorioOperador").toString()));
 
 		pensionado.setDatosFinado(new AGFPensionadoFinado());
-		pensionado.getDatosFinado().setSelBeneficiario( registroAGFDto.getNombreBeneficiario() ); 
+		pensionado.getDatosFinado().setSelBeneficiario( registroAGFDto.getIdBeneficiario() ); 
 		pensionado.getDatosFinado().setCurp(registroAGFDto.getCveCURPBeneficiario());
 		pensionado.getDatosFinado().setSexo((Integer)datos1.get(0).get("sexo")==null?new BigInteger("0"):new BigInteger(datos1.get(0).get("sexo").toString()));
 		pensionado.getDatosFinado().setCalleNumero((String)datos1.get(0).get("calleNumero")==null?"":(String)datos1.get(0).get("calleNumero"));

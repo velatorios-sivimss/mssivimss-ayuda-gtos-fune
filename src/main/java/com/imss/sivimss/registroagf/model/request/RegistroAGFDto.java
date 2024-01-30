@@ -29,5 +29,6 @@ public class RegistroAGFDto {
 	String cveCURPBeneficiario;
 	String nombreBeneficiario;
 	Integer idUsuarioAlta;
+	String idBeneficiario;
 
 }
