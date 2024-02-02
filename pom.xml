@@ -250,8 +250,8 @@
 		<dependency> 
 			<groupId>mx.gob.imss.cit.clienteswebservices.externos</groupId>
 			<artifactId>WSClienteGastosFunerariosSistrap</artifactId>
-<!--		<version>1.0-QA</version> -->  <!-- Desarrollo -->
-			<version>1.0</version> <!-- Produccion -->
+			<version>1.0-QA</version> <!-- Desarrollo -->
+<!--		<version>1.0</version> --> <!-- Produccion -->
 		</dependency>
 		
 	</dependencies>
