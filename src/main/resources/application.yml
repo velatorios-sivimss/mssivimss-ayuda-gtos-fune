@@ -17,6 +17,12 @@ spring:
       max-file-size: 30MB
       max-request-size: 30MB
 
+  datasource:
+    driverClassName: org.mariadb.jdbc.Driver
+    url: ${msit_CONNECTION_DB}
+    username: ${msit_USERNAME_DB}
+    password: ${msit_PASSWORD_DB}
+
 logging:
   level:
     root: info
@@ -65,3 +71,4 @@ resilience4j.timelimiter:
 
 formato_fecha: ${msit_FORMATO_FECHA}
 ruta-log: ${msit_RUTA_LOG}
+enviroment: Develop
