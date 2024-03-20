@@ -38,6 +38,10 @@ public class SQLLoader {
         bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
         pagoBitacora = new String(bytes, StandardCharsets.UTF_8);
 
+        resource = resourceLoader.getResource("classpath:sql/PAGOS_CONSULTA_DETALLE_CONCEPTOS.SQL");
+        bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
+        pagoBitacoraDetalles = new String(bytes, StandardCharsets.UTF_8);
+
         resource = resourceLoader.getResource("classpath:sql/PAGOS_CONSULTA_ODS.SQL");
         bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
         ordenesDeServ = new String(bytes, StandardCharsets.UTF_8);
