@@ -24,6 +24,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,12 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.imss.sivimss.registroagf.util.PagosUtil;
 import com.imss.sivimss.registroagf.model.request.ActualizarMultiRequest;
+import com.imss.sivimss.registroagf.configuration.mapper.Consultas;
+import com.imss.sivimss.registroagf.model.entity.OrdenesServicio;
+import com.imss.sivimss.registroagf.model.entity.PagoBitacora;
+import com.imss.sivimss.registroagf.model.entity.PagoBitacoraDetalles;
+import com.imss.sivimss.registroagf.configuration.MyBatisConfig;
+import com.imss.sivimss.registroagf.model.entity.Bitacora;
 import com.imss.sivimss.registroagf.beans.AyudaGastosFunerarios;
 import com.imss.sivimss.registroagf.service.RegistroAGFService;
 import com.imss.sivimss.registroagf.service.nssa.AGFAsegurado;
@@ -44,6 +52,7 @@ import com.imss.sivimss.registroagf.util.DatosRequest;
 import com.imss.sivimss.registroagf.util.LogUtil;
 import com.imss.sivimss.registroagf.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.registroagf.util.Response;
+import com.imss.sivimss.registroagf.util.SQLLoader;
 
 import mx.gob.imss.cit.clienteswebservices.sistrap.spes.services.autorizaGF.AutorizaGastosFunerariosServiceLocator;
 import mx.gob.imss.cit.clienteswebservices.sistrap.spes.services.autorizaGF.AutorizaGastosFunerarios;
@@ -65,6 +74,29 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDominio;
 	
+	@Value("${formato_fecha}")
+	private String formatoFecha;
+	
+	@Autowired
+	private LogUtil logUtil;
+	
+	@Autowired
+	private ProviderServiceRestTemplate providerRestTemplate;
+	
+	@Autowired
+    private SQLLoader sqlLoader;
+	
+	@Autowired
+	private SoapClientService soapClientService;
+
+	@Autowired
+	private ModelMapper modelMapper;
+	
+	@Autowired
+	private MyBatisConfig myBatisConfig;
+	
+	private static final Logger log = LoggerFactory.getLogger(RegistroAGFServiceImpl.class);
+	
 	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
 	
 	private static final String CONSULTA = "/consulta";
@@ -77,24 +109,7 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 	
 	private static final String EXITO = "Exito";
 	
-	@Value("${formato_fecha}")
-	private String formatoFecha;
-	
-	@Autowired
-	private LogUtil logUtil;
-	
-	@Autowired
-	private ProviderServiceRestTemplate providerRestTemplate;
-	
-	private static final Logger log = LoggerFactory.getLogger(RegistroAGFServiceImpl.class);
-	
 	private Response<Object>response;
-	
-	@Autowired
-	private SoapClientService soapClientService;
-
-	@Autowired
-	private ModelMapper modelMapper;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -172,6 +187,36 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		String estatusPago = "0";
 		Response<Object> response3;
 		String salidaError = "";
+		
+		log.info("----------------------------------------------------------------------------------------------------------------");
+		SqlSessionFactory sqlSessionFactory = myBatisConfig.buildqlSessionFactory();
+		PagoBitacora pagoAntes = new PagoBitacora();
+		List<PagoBitacoraDetalles> pagoDetallesAntes = null;
+		OrdenesServicio ordenesServAntes = null;
+		String idPago = registroAGFDto.getIdPagoBitacora().toString();
+
+		try (SqlSession session = sqlSessionFactory.openSession()) {
+			
+			Consultas consultas = session.getMapper(Consultas.class);
+			
+			try {
+				String seleccionarPago = sqlLoader.getPagoBitacora();
+				seleccionarPago =seleccionarPago.replace("#{idBitacora}", idPago);
+
+				String seleccionarPagoDetalles = sqlLoader.getPagoBitacoraDetalles();
+				seleccionarPagoDetalles = seleccionarPagoDetalles.replace("#{idBitacora}", idPago);
+
+				pagoAntes = consultas.consultaPagosBitacora(seleccionarPago);
+				
+				pagoDetallesAntes = consultas.consultaPagosBitacoraDetalle(seleccionarPagoDetalles);
+
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+		}
+		log.info("----------------------------------------------------------------------------------------------------------------");
+
+		
 		
 		try {
 			// Obtener datos para registro
@@ -516,6 +561,36 @@ public class RegistroAGFServiceImpl implements RegistroAGFService   {
 		registroAGFDto.setIdPagoDetalle(idPagoDetalle);
 		
 		response3 = (Response<Object>) providerRestTemplate.consumirServicio(ayudaGF.guardarASF(registroAGFDto, formatoFecha) .getDatos(), urlDominio + CREAR, authentication);
+		
+		log.info("----------------------------------------------------------------------------------------------------------------");
+		PagoBitacora pagoDespues = new PagoBitacora();
+		List<PagoBitacoraDetalles> pagoDetallesDespues = null;
+		try (SqlSession session = sqlSessionFactory.openSession()) {
+			Consultas consultas = session.getMapper(Consultas.class);
+
+			try {
+				String seleccionarPago = sqlLoader.getPagoBitacora().replace("#{idBitacora}", registroAGFDto.getIdPagoBitacora().toString() );
+				pagoDespues = consultas.consultaPagosBitacora(seleccionarPago);
+				
+				String seleccionarPagoDetalles = sqlLoader.getPagoBitacoraDetalles();
+				seleccionarPagoDetalles = seleccionarPagoDetalles.replace("#{idBitacora}", idPago);
+
+				
+				pagoDetallesDespues = consultas.consultaPagosBitacoraDetalle(seleccionarPagoDetalles);
+
+				String queryBitacora = sqlLoader.getBitacoraNuevoRegistro();
+				consultas.insertData(queryBitacora, new Bitacora(1, "SVT_PAGO_BITACORA", pagoAntes.toString(), pagoDespues.toString(), usuarioDto.getIdUsuario()));
+				consultas.insertData(queryBitacora, new Bitacora(1, "SVT_PAGO_DETALLE", pagoDetallesAntes.toString(), pagoDetallesDespues.toString(), usuarioDto.getIdUsuario()));
+								
+				session.commit();
+			} catch (Exception e) {
+				session.rollback();
+				log.error(e.getMessage());
+			}
+		}
+		log.info("----------------------------------------------------------------------------------------------------------------");
+
+		
 		
 		if( folioAgf.isEmpty() ) {
 			
